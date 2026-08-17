@@ -34,9 +34,9 @@
             <div>
                 <h1 class="text-lg font-bold text-white flex items-center gap-2">
                     Dirección Financiera & Cash Flow Integral
-                    <span class="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-medium">v4.5 Auto-Mapper</span>
+                    <span class="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-medium">v4.6 Fully Fixed</span>
                 </h1>
-                <p class="text-xs text-gray-400">Lectura de ERP, cruce automático con Maestro de Observaciones y reprogramación de pagos.</p>
+                <p class="text-xs text-gray-400">Procesamiento directo de Reporte ERP, reprogramación de pagos y cálculo en tiempo real.</p>
             </div>
         </div>
     </header>
@@ -93,7 +93,7 @@
                         <button onclick="document.getElementById('maestro-input').click()" class="bg-purple-600 hover:bg-purple-500 text-white px-3 py-1.5 rounded-lg text-xs font-medium">Subir Maestro (Opcional)</button>
                     </div>
 
-                    <!-- SIMULADOR COBRABILIDAD -->
+                    <!-- SIMULADOR DE COBRABILIDAD (3 BARRAS DESLIZANTES) -->
                     <div class="bg-[#151e2e] border border-gray-800 rounded-xl p-4 space-y-3">
                         <h3 class="text-xs font-bold text-blue-400 uppercase tracking-wider flex items-center gap-2">
                             <i data-lucide="sliders" class="w-4 h-4"></i> Simulador de Cobrabilidad
@@ -111,13 +111,19 @@
                                 </div>
                                 <input type="range" id="slider-pct-2" min="0" max="100" value="25" oninput="actualizarSliders()" class="w-full accent-blue-500">
                             </div>
+                            <div>
+                                <div class="flex justify-between text-gray-300 font-medium mb-1">
+                                    <span>Cobro Sem 3+ (Remanente):</span><span id="label-pct-3" class="text-amber-400 font-bold">15%</span>
+                                </div>
+                                <input type="range" id="slider-pct-3" min="0" max="100" value="15" oninput="actualizarSliders()" class="w-full accent-amber-500">
+                            </div>
                         </div>
                     </div>
 
                 </div>
             </div>
 
-            <!-- EDICIÓN DE SALDOS INICIALES (INCLUYE BANCO BPN) -->
+            <!-- EDICIÓN DE SALDOS INICIALES (8 BANCOS/CAJAS CON CÁLCULO EN TIEMPO REAL) -->
             <div class="bg-[#111827] border border-gray-800 rounded-2xl p-6 space-y-4">
                 <div class="flex items-center justify-between border-b border-gray-800 pb-3">
                     <h3 class="text-sm font-bold text-white flex items-center gap-2">
@@ -126,17 +132,17 @@
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-xs">
-                    <div class="bg-[#151e2e] p-3 rounded-xl border border-gray-800 space-y-1.5"><label class="text-gray-400 font-semibold">Banco Nación (BNA) ($)</label><input type="number" id="saldo-bna" value="12000000" onchange="recalcularCashflow()" class="w-full bg-[#0b0f19] border border-gray-700 rounded-lg p-2 text-white font-semibold"></div>
-                    <div class="bg-[#151e2e] p-3 rounded-xl border border-gray-800 space-y-1.5"><label class="text-gray-400 font-semibold">Banco Galicia ($)</label><input type="number" id="saldo-galicia" value="80000000" onchange="recalcularCashflow()" class="w-full bg-[#0b0f19] border border-gray-700 rounded-lg p-2 text-white font-semibold"></div>
-                    <div class="bg-[#151e2e] p-3 rounded-xl border border-gray-800 space-y-1.5"><label class="text-gray-400 font-semibold">Banco BPN ($)</label><input type="number" id="saldo-bpn" value="52000000" onchange="recalcularCashflow()" class="w-full bg-[#0b0f19] border border-gray-700 rounded-lg p-2 text-white font-semibold"></div>
-                    <div class="bg-[#151e2e] p-3 rounded-xl border border-gray-800 space-y-1.5"><label class="text-gray-400 font-semibold">Caja de Ahorro BPN ($)</label><input type="number" id="saldo-bpn-ahorro" value="98000000" onchange="recalcularCashflow()" class="w-full bg-[#0b0f19] border border-gray-700 rounded-lg p-2 text-white font-semibold"></div>
-                    <div class="bg-[#151e2e] p-3 rounded-xl border border-gray-800 space-y-1.5"><label class="text-gray-400 font-semibold">Cuenta Ferrandi ($)</label><input type="number" id="saldo-ferrandi" value="24000000" onchange="recalcularCashflow()" class="w-full bg-[#0b0f19] border border-gray-700 rounded-lg p-2 text-white font-semibold"></div>
-                    <div class="bg-[#151e2e] p-3 rounded-xl border border-gray-800 space-y-1.5"><label class="text-gray-400 font-semibold">Efectivo Capacitación ($)</label><input type="number" id="saldo-efectivo-cap" value="15000000" onchange="recalcularCashflow()" class="w-full bg-[#0b0f19] border border-gray-700 rounded-lg p-2 text-white font-semibold"></div>
-                    <div class="bg-[#151e2e] p-3 rounded-xl border border-gray-800 space-y-1.5"><label class="text-gray-400 font-semibold">Efectivo Ganadera ($)</label><input type="number" id="saldo-efectivo-gan" value="25000000" onchange="recalcularCashflow()" class="w-full bg-[#0b0f19] border border-gray-700 rounded-lg p-2 text-white font-semibold"></div>
-                    <div class="bg-[#151e2e] p-3 rounded-xl border border-gray-800 space-y-1.5"><label class="text-gray-400 font-semibold">Mercado Pago / Cajas ($)</label><input type="number" id="saldo-mp" value="13817086" onchange="recalcularCashflow()" class="w-full bg-[#0b0f19] border border-gray-700 rounded-lg p-2 text-white font-semibold"></div>
+                    <div class="bg-[#151e2e] p-3 rounded-xl border border-gray-800 space-y-1.5"><label class="text-gray-400 font-semibold">Banco Nación (BNA) ($)</label><input type="number" id="saldo-bna" value="26000000" oninput="calcularSaldoInicial()" class="w-full bg-[#0b0f19] border border-gray-700 rounded-lg p-2 text-white font-semibold"></div>
+                    <div class="bg-[#151e2e] p-3 rounded-xl border border-gray-800 space-y-1.5"><label class="text-gray-400 font-semibold">Banco Galicia ($)</label><input type="number" id="saldo-galicia" value="13000000" oninput="calcularSaldoInicial()" class="w-full bg-[#0b0f19] border border-gray-700 rounded-lg p-2 text-white font-semibold"></div>
+                    <div class="bg-[#151e2e] p-3 rounded-xl border border-gray-800 space-y-1.5"><label class="text-gray-400 font-semibold">Banco BPN ($)</label><input type="number" id="saldo-bpn" value="30000000" oninput="calcularSaldoInicial()" class="w-full bg-[#0b0f19] border border-gray-700 rounded-lg p-2 text-white font-semibold"></div>
+                    <div class="bg-[#151e2e] p-3 rounded-xl border border-gray-800 space-y-1.5"><label class="text-gray-400 font-semibold">Caja de Ahorro BPN ($)</label><input type="number" id="saldo-bpn-ahorro" value="154000" oninput="calcularSaldoInicial()" class="w-full bg-[#0b0f19] border border-gray-700 rounded-lg p-2 text-white font-semibold"></div>
+                    <div class="bg-[#151e2e] p-3 rounded-xl border border-gray-800 space-y-1.5"><label class="text-gray-400 font-semibold">Cuenta Ferrandi ($)</label><input type="number" id="saldo-ferrandi" value="38800000" oninput="calcularSaldoInicial()" class="w-full bg-[#0b0f19] border border-gray-700 rounded-lg p-2 text-white font-semibold"></div>
+                    <div class="bg-[#151e2e] p-3 rounded-xl border border-gray-800 space-y-1.5"><label class="text-gray-400 font-semibold">Efectivo Capacitación ($)</label><input type="number" id="saldo-efectivo-cap" value="38800000" oninput="calcularSaldoInicial()" class="w-full bg-[#0b0f19] border border-gray-700 rounded-lg p-2 text-white font-semibold"></div>
+                    <div class="bg-[#151e2e] p-3 rounded-xl border border-gray-800 space-y-1.5"><label class="text-gray-400 font-semibold">Efectivo Ganadera ($)</label><input type="number" id="saldo-efectivo-gan" value="9100000" oninput="calcularSaldoInicial()" class="w-full bg-[#0b0f19] border border-gray-700 rounded-lg p-2 text-white font-semibold"></div>
+                    <div class="bg-[#151e2e] p-3 rounded-xl border border-gray-800 space-y-1.5"><label class="text-gray-400 font-semibold">Mercado Pago / Cajas ($)</label><input type="number" id="saldo-mp" value="19000000" oninput="calcularSaldoInicial()" class="w-full bg-[#0b0f19] border border-gray-700 rounded-lg p-2 text-white font-semibold"></div>
                     <div class="bg-[#1e293b] p-3 rounded-xl border border-blue-500/30 space-y-1.5 flex flex-col justify-center sm:col-span-2 md:col-span-4">
                         <span class="text-gray-400 font-medium">Total Disponibilidad Inicial</span>
-                        <span id="label-sum-disponibilidades" class="text-xl font-black text-emerald-400">$ 319.817.086</span>
+                        <span id="label-sum-disponibilidades" class="text-xl font-black text-emerald-400">$ 174.854.000</span>
                     </div>
                 </div>
             </div>
@@ -145,7 +151,7 @@
         <!-- PESTAÑA 2: CASH FLOW PROYECTADO & ALERTAS DINÁMICAS -->
         <section id="tab-cashflow" class="hidden space-y-6">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="gradient-card-blue p-5 rounded-2xl shadow-xl space-y-1"><p class="text-xs font-bold text-blue-100 uppercase">Caja Inicial Disponible</p><p id="kpi-caja-ini" class="text-2xl font-black text-white">$ 0</p></div>
+                <div class="gradient-card-blue p-5 rounded-2xl shadow-xl space-y-1"><p class="text-xs font-bold text-blue-100 uppercase">Caja Inicial Disponible</p><p id="kpi-caja-ini" class="text-2xl font-black text-white">$ 174.854.000</p></div>
                 <div class="gradient-card-green p-5 rounded-2xl shadow-xl space-y-1"><p class="text-xs font-bold text-emerald-100 uppercase">Ingresos Proyectados</p><p id="kpi-ingresos" class="text-2xl font-black text-white">$ 0</p></div>
                 <div class="gradient-card-amber p-5 rounded-2xl shadow-xl space-y-1"><p class="text-xs font-bold text-amber-100 uppercase">Egresos Totales</p><p id="kpi-egresos" class="text-2xl font-black text-white">$ 0</p></div>
                 <div class="gradient-card-red p-5 rounded-2xl shadow-xl space-y-1"><p class="text-xs font-bold text-red-100 uppercase">⚠️ Déficit Máximo</p><p id="kpi-deficit" class="text-2xl font-black text-white">$ 0</p></div>
@@ -184,7 +190,7 @@
                 <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-2">
                     <div class="flex justify-between items-start"><span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30">KPI-01</span><span class="text-[10px] text-gray-400">Proyectado / Cajas</span></div>
                     <p class="text-xs font-semibold text-gray-300">Posición de Caja Inicial</p>
-                    <p id="kpi-01-val" class="text-2xl font-black text-white">$ 0</p>
+                    <p id="kpi-01-val" class="text-2xl font-black text-white">$ 174.854.000</p>
                     <p class="text-[11px] text-emerald-400 font-medium">✓ Disponibilidades Líquidas</p>
                 </div>
 
@@ -280,7 +286,7 @@
 
     </main>
 
-    <!-- SCRIPTS CORE CON AUTO-MAPPER Y MANEJO ROBUSTO -->
+    <!-- SCRIPTS CORE -->
     <script>
         lucide.createIcons();
         let chartCashflow = null;
@@ -292,7 +298,7 @@
         let totalIngresosPuros = 0;
         let totalEgresosPuros = 0;
 
-        // DICCIONARIO BASE DE OBSERVACIONES POR PROVEEDOR (PRECARGADO)
+        // DICCIONARIO BASE DE OBSERVACIONES
         let maestroObservaciones = {
             "EL TAKA ELECTRICISTA": "Mantenimiento de vehículos",
             "GRANJA EL AMANECER SRL": "Productos de terceros",
@@ -305,6 +311,63 @@
             "PRODUCTORES DE HACIENDA": "Hacienda"
         };
 
+        // PARSER ROBUSTO DE NÚMEROS Y MONEDA
+        function parseMonto(raw) {
+            if (raw === null || raw === undefined || raw === "") return 0.0;
+            if (typeof raw === "number") return isNaN(raw) ? 0.0 : raw;
+            
+            let s = String(raw).trim();
+            if (!s || s === "-") return 0.0;
+            
+            // Eliminar símbolos de moneda y caracteres no numéricos excepto dígitos, guión, coma y punto
+            s = s.replace(/[^\d.,-]/g, '');
+            if (!s || s === "-") return 0.0;
+
+            if (s.includes(',') && s.includes('.')) {
+                if (s.lastIndexOf(',') > s.lastIndexOf('.')) {
+                    s = s.replace(/\./g, '').replace(',', '.'); // Formato argentino 1.234,56
+                } else {
+                    s = s.replace(/,/g, ''); // Formato EE.UU. 1,234.56
+                }
+            } else if (s.includes(',')) {
+                s = s.replace(',', '.');
+            } else if (s.includes('.')) {
+                let parts = s.split('.');
+                if (parts.length > 2) {
+                    s = s.replace(/\./g, '');
+                }
+            }
+
+            let val = parseFloat(s);
+            return isNaN(val) ? 0.0 : val;
+        }
+
+        // CÁLCULO INDEPENDIENTE DE DISPONIBILIDADES INICIALES (8 CAMPOS)
+        function calcularSaldoInicial() {
+            let bna = parseMonto(document.getElementById('saldo-bna').value);
+            let galicia = parseMonto(document.getElementById('saldo-galicia').value);
+            let bpn = parseMonto(document.getElementById('saldo-bpn').value);
+            let bpnAhorro = parseMonto(document.getElementById('saldo-bpn-ahorro').value);
+            let ferrandi = parseMonto(document.getElementById('saldo-ferrandi').value);
+            let efecCap = parseMonto(document.getElementById('saldo-efectivo-cap').value);
+            let efecGan = parseMonto(document.getElementById('saldo-efectivo-gan').value);
+            let mp = parseMonto(document.getElementById('saldo-mp').value);
+            
+            let total = bna + galicia + bpn + bpnAhorro + ferrandi + efecCap + efecGan + mp;
+
+            let formatted = "$ " + formatearMoneda(total);
+            
+            let lblSum = document.getElementById('label-sum-disponibilidades');
+            let lblIni = document.getElementById('kpi-caja-ini');
+            let lbl01 = document.getElementById('kpi-01-val');
+
+            if (lblSum) lblSum.innerText = formatted;
+            if (lblIni) lblIni.innerText = formatted;
+            if (lbl01) lbl01.innerText = formatted;
+
+            return total;
+        }
+
         function cambiarPestana(tabId) {
             document.querySelectorAll('main > section').forEach(el => el.classList.add('hidden'));
             document.getElementById(tabId).classList.remove('hidden');
@@ -315,15 +378,13 @@
             });
             document.getElementById('btn-' + tabId).classList.add('tab-active');
             
+            calcularSaldoInicial();
             if (facturasDetalle.length > 0) {
                 recalcularCashflow();
                 if (tabId === 'tab-facturas') renderizarTablaFacturas();
             }
         }
 
-        // =========================================================
-        // CARGA DE PLANILLA MAESTRA DE OBSERVACIONES (OPCIONAL)
-        // =========================================================
         function cargarMaestroObservaciones(event) {
             let file = event.target.files[0];
             if (!file) return;
@@ -347,14 +408,11 @@
 
                 document.getElementById('label-estado-maestro').innerText = "✓ Maestro cargado (" + count + " asociaciones).";
                 document.getElementById('label-estado-maestro').classList.add("text-purple-400");
-                alert("✓ Maestro de observaciones cargado con " + count + " proveedores registrados.");
+                alert("✓ Maestro de observaciones cargado con " + count + " proveedores.");
             };
             reader.readAsArrayBuffer(file);
         }
 
-        // =========================================================
-        // LECTURA DE REPORTE ERP (Con cruce automático)
-        // =========================================================
         function leerArchivoExcel(event) {
             let file = event.target.files[0];
             if (!file) return;
@@ -378,7 +436,7 @@
                     return;
                 }
 
-                let jsonHoja1 = XLSX.utils.sheet_to_json(sheet);
+                let jsonHoja1 = XLSX.utils.sheet_to_json(sheet, { raw: true });
                 procesarDatos(jsonHoja1);
                 
                 document.getElementById('label-estado-archivo').innerText = "✓ Excel cargado (" + facturasDetalle.length + " facturas detectadas).";
@@ -403,7 +461,6 @@
                 let tipo = String(row.Tipo || row.tipo || "").trim().toLowerCase();
                 
                 if (origen === "movimiento") {
-                    
                     let f = row.Periodo || row.periodo || row.Fecha || row.fecha;
                     let strFecha = "";
                     if (f instanceof Date) {
@@ -415,14 +472,13 @@
                     if (strFecha) setSemanas.add(strFecha);
                     
                     let rawImporte = (row.Importe !== undefined) ? row.Importe : (row.importe !== undefined ? row.importe : row.Monto);
-                    let importe = parseFloat(String(rawImporte).replace(/[^0-9.-]/g, '')) || 0;
+                    let importe = parseMonto(rawImporte);
 
                     let tipoDoc = row["Tipo de Doc."] || row["Tipo de doc."] || row["Tipo Doc"] || row.Doc || "Comprobante";
                     let tercero = String(row.Tercero || row.tercero || row.Proveedor || row.Cliente || "Sin Especificar").trim();
                     
-                    // Cruce Inteligente: Si el archivo viene vacío, asigna del Maestro por Proveedor
                     let rawObs = String(row.Observaciones || row.observaciones || row.Comisionista || row.comisionista || "").trim();
-                    let obsFinal = rawObs && rawObs !== "nan" && rawObs !== "null" 
+                    let obsFinal = (rawObs && rawObs !== "nan" && rawObs !== "null" && rawObs !== "undefined")
                         ? rawObs 
                         : (maestroObservaciones[tercero] || "General");
 
@@ -440,7 +496,7 @@
                             fechaOrig: strFecha,
                             fechaAjustada: strFecha,
                             obs: obsFinal,
-                            importe: importe // Negativo
+                            importe: importe // Valor negativo
                         });
                     }
                 }
@@ -455,27 +511,10 @@
             recalcularCashflow();
         }
 
-        // ==========================================
-        // CÁLCULO DINÁMICO DEL FLUJO Y REPROGRAMACIONES
-        // ==========================================
         function recalcularCashflow() {
+            let saldoInicialTotal = calcularSaldoInicial();
+
             if (semanasOrdenadas.length === 0) return;
-
-            // 1. Obtener saldos iniciales (incluye Banco BPN y Banco Galicia)
-            let bna = parseFloat(document.getElementById('saldo-bna').value) || 0;
-            let galicia = parseFloat(document.getElementById('saldo-galicia').value) || 0;
-            let bpn = parseFloat(document.getElementById('saldo-bpn').value) || 0;
-            let bpnAhorro = parseFloat(document.getElementById('saldo-bpn-ahorro').value) || 0;
-            let ferrandi = parseFloat(document.getElementById('saldo-ferrandi').value) || 0;
-            let efecCap = parseFloat(document.getElementById('saldo-efectivo-cap').value) || 0;
-            let efecGan = parseFloat(document.getElementById('saldo-efectivo-gan').value) || 0;
-            let mp = parseFloat(document.getElementById('saldo-mp').value) || 0;
-            
-            let saldoInicialTotal = bna + galicia + bpn + bpnAhorro + ferrandi + efecCap + efecGan + mp;
-
-            document.getElementById('label-sum-disponibilidades').innerText = "$ " + formatearMoneda(saldoInicialTotal);
-            document.getElementById('kpi-caja-ini').innerText = "$ " + formatearMoneda(saldoInicialTotal);
-            document.getElementById('kpi-01-val').innerText = "$ " + formatearMoneda(saldoInicialTotal);
 
             let ingSimulados = {};
             let egrSimulados = {};
@@ -539,9 +578,6 @@
             actualizarGrafico(saldoSeries, ingSimulados, egrSimulados);
         }
 
-        // ==========================================
-        // RENDER DE TABLA DE FACTURAS (SOLAPA 4)
-        // ==========================================
         function renderizarTablaFacturas() {
             let tbody = document.getElementById('tabla-facturas-body');
             if (!tbody) return;
@@ -659,6 +695,10 @@
                 }
             });
         }
+
+        window.onload = function() {
+            calcularSaldoInicial();
+        };
     </script>
 </body>
 </html>
