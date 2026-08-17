@@ -34,9 +34,9 @@
             <div>
                 <h1 class="text-lg font-bold text-white flex items-center gap-2">
                     Dirección Financiera & Cash Flow Integral
-                    <span class="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-medium">v5.0 Finnegans Direct</span>
+                    <span class="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-medium">v5.2 Full Integrated</span>
                 </h1>
-                <p class="text-xs text-gray-400">Procesamiento directo de Reportes Finnegans ERP, reprogramación de pagos y cálculo en tiempo real.</p>
+                <p class="text-xs text-gray-400">Simulación de cobrabilidad, reprogramación de pagos y desglose por Empresa & Observación.</p>
             </div>
         </div>
     </header>
@@ -93,7 +93,7 @@
                         <button onclick="document.getElementById('maestro-input').click()" class="bg-purple-600 hover:bg-purple-500 text-white px-3 py-1.5 rounded-lg text-xs font-medium">Subir Maestro (Opcional)</button>
                     </div>
 
-                    <!-- SIMULADOR DE COBRABILIDAD (3 BARRAS DESLIZANTES) -->
+                    <!-- SIMULADOR DE COBRABILIDAD (3 BARRAS DESLIZANTES ACTIVAS) -->
                     <div class="bg-[#151e2e] border border-gray-800 rounded-xl p-4 space-y-3">
                         <h3 class="text-xs font-bold text-blue-400 uppercase tracking-wider flex items-center gap-2">
                             <i data-lucide="sliders" class="w-4 h-4"></i> Simulador de Cobrabilidad
@@ -245,7 +245,7 @@
             </div>
         </section>
 
-        <!-- PESTAÑA 4: FACTURAS & REPROGRAMACIÓN -->
+        <!-- PESTAÑA 4: FACTURAS & REPROGRAMACIÓN (CON FILTRO DE OBSERVACIÓN Y COLUMNA EMPRESA) -->
         <section id="tab-facturas" class="hidden space-y-6">
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-1"><span class="text-xs font-bold text-gray-400 uppercase">Comprobantes Postergados</span><p id="label-count-deferred" class="text-2xl font-black text-amber-400">0 Facturas</p></div>
@@ -254,22 +254,39 @@
             </div>
 
             <!-- FILTROS REPROGRAMACIÓN -->
-            <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+            <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
                 <div>
-                    <label class="text-gray-400 font-semibold mb-1 block">Buscar Proveedor / Tercero / Observación</label>
-                    <input type="text" id="filter-search" onkeyup="renderizarTablaFacturas()" placeholder="Ej: Granja, El Taka, Guerrero, Leandro Monedero..." class="w-full bg-[#151e2e] border border-gray-700 rounded-lg p-2 text-white placeholder-gray-500 focus:border-blue-500 outline-none">
+                    <label class="text-gray-400 font-semibold mb-1 block">Filtrar por Observaciones / Comisionista</label>
+                    <select id="filter-obs" onchange="renderizarTablaFacturas()" class="w-full bg-[#151e2e] border border-gray-700 rounded-lg p-2 text-white font-medium focus:border-blue-500 outline-none">
+                        <option value="TODOS">Todas las Observaciones</option>
+                    </select>
                 </div>
-                <div class="flex items-end">
-                    <span id="label-counter-facturas" class="text-xs text-gray-400 font-medium pb-2">Mostrando facturas cargadas</span>
+
+                <div>
+                    <label class="text-gray-400 font-semibold mb-1 block">Filtrar por Empresa</label>
+                    <select id="filter-empresa" onchange="renderizarTablaFacturas()" class="w-full bg-[#151e2e] border border-gray-700 rounded-lg p-2 text-white font-medium focus:border-blue-500 outline-none">
+                        <option value="TODAS">Todas las Empresas</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="text-gray-400 font-semibold mb-1 block">Buscar Proveedor / Tercero / Texto</label>
+                    <input type="text" id="filter-search" onkeyup="renderizarTablaFacturas()" placeholder="Ej: Granja, El Taka, Guerrero, Ñimapu..." class="w-full bg-[#151e2e] border border-gray-700 rounded-lg p-2 text-white placeholder-gray-500 focus:border-blue-500 outline-none">
                 </div>
             </div>
 
             <div class="bg-[#111827] border border-gray-800 rounded-2xl overflow-hidden p-4 space-y-3">
+                <div class="flex justify-between items-center px-2">
+                    <span class="text-xs font-bold text-gray-300">Listado Exigible de Comprobantes</span>
+                    <span id="label-counter-facturas" class="text-xs text-gray-400 font-medium">Mostrando facturas cargadas</span>
+                </div>
+
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs border-collapse">
                         <thead>
                             <tr class="border-b border-gray-800 text-gray-400 font-semibold bg-[#151e2e]">
                                 <th class="p-3">Comprobante</th>
+                                <th class="p-3">Empresa</th>
                                 <th class="p-3">Proveedor / Tercero</th>
                                 <th class="p-3">Sem. Original</th>
                                 <th class="p-3">Acción de Pago / Reprogramación</th>
@@ -286,7 +303,7 @@
 
     </main>
 
-    <!-- SCRIPTS CORE: BUSCADOR UNIVERSAL DE COLUMNAS Y PARSER ROBUSTO -->
+    <!-- SCRIPTS CORE CON BUSCADOR UNIVERSAL Y DICCIONARIO MAESTRO -->
     <script>
         lucide.createIcons();
         let chartCashflow = null;
@@ -298,7 +315,6 @@
         let totalIngresosPuros = 0;
         let totalEgresosPuros = 0;
 
-        // DICCIONARIO BASE DE OBSERVACIONES POR PROVEEDOR
         let maestroObservaciones = {
             "EL TAKA ELECTRICISTA": "Mantenimiento de vehículos",
             "GRANJA EL AMANECER SRL": "Productos de terceros",
@@ -311,12 +327,9 @@
             "PRODUCTORES DE HACIENDA": "Hacienda"
         };
 
-        // BÚSQUEDA INSENSIBLE A ESPACIOS Y MAYÚSCULAS DE PROPIEDADES EN OBJETOS
         function getPropVal(row, keyNames) {
             if (!row) return undefined;
             let keys = Object.keys(row);
-            
-            // 1. Coincidencia Exacta Limpia (Sin espacios ni mayúsculas)
             for (let target of keyNames) {
                 let tClean = target.toLowerCase().trim().replace(/\s+/g, '');
                 for (let k of keys) {
@@ -326,8 +339,6 @@
                     }
                 }
             }
-            
-            // 2. Coincidencia Parcial Limpia
             for (let target of keyNames) {
                 let tClean = target.toLowerCase().trim();
                 for (let k of keys) {
@@ -340,7 +351,6 @@
             return undefined;
         }
 
-        // PARSER ROBUSTO DE NÚMEROS Y MONEDA (CON O SIN $)
         function parseMonto(raw) {
             if (raw === null || raw === undefined || raw === "") return 0.0;
             if (typeof raw === "number") return isNaN(raw) ? 0.0 : raw;
@@ -353,9 +363,9 @@
 
             if (s.includes(',') && s.includes('.')) {
                 if (s.lastIndexOf(',') > s.lastIndexOf('.')) {
-                    s = s.replace(/\./g, '').replace(',', '.'); // Formato argentino -1.618.107,09 -> -1618107.09
+                    s = s.replace(/\./g, '').replace(',', '.');
                 } else {
-                    s = s.replace(/,/g, ''); // Formato EE.UU. -1,618,107.09 -> -1618107.09
+                    s = s.replace(/,/g, '');
                 }
             } else if (s.includes(',')) {
                 let parts = s.split(',');
@@ -369,7 +379,7 @@
                 if (parts.length > 2) {
                     s = s.replace(/\./g, '');
                 } else if (parts.length === 2 && parts[1].length === 3 && parts[0].length <= 3) {
-                    s = s.replace(/\./g, ''); // Puntos de millar 820.000 -> 820000
+                    s = s.replace(/\./g, '');
                 }
             }
 
@@ -377,7 +387,6 @@
             return isNaN(val) ? 0.0 : val;
         }
 
-        // CÁLCULO DINÁMICO E INDEPENDIENTE DE DISPONIBILIDADES INICIALES (8 CAMPOS)
         function calcularSaldoInicial() {
             let bna = parseMonto(document.getElementById('saldo-bna').value);
             let galicia = parseMonto(document.getElementById('saldo-galicia').value);
@@ -510,6 +519,7 @@
                     let rawImporte = getPropVal(row, ['Importe', 'importe', 'Monto', 'monto', 'Valor']);
                     let importe = parseMonto(rawImporte);
 
+                    let empresa = String(getPropVal(row, ['Empresa', 'empresa', 'Razon Social']) || "CAPACITACION").trim();
                     let tipoDoc = String(getPropVal(row, ['Tipo de Doc.', 'Tipo de doc.', 'Tipo Doc', 'Doc']) || "Comprobante");
                     let tercero = String(getPropVal(row, ['Tercero', 'tercero', 'Proveedor', 'proveedor', 'Cliente']) || "Sin Especificar").trim();
                     
@@ -527,12 +537,13 @@
                         totalEgresosPuros += Math.abs(importe);
                         facturasDetalle.push({
                             id: idx,
+                            empresa: empresa,
                             doc: tipoDoc,
                             tercero: tercero,
                             fechaOrig: strFecha,
                             fechaAjustada: strFecha,
                             obs: obsFinal,
-                            importe: importe // Negativo
+                            importe: importe
                         });
                     }
                 }
@@ -540,6 +551,8 @@
 
             semanasOrdenadas = Array.from(setSemanas).sort();
             
+            poblarFiltrosDesplegables();
+
             document.getElementById('kpi-ingresos').innerText = "$ " + formatearMoneda(totalIngresosPuros);
             document.getElementById('kpi-02-val').innerText = "$ " + formatearMoneda(totalIngresosPuros);
             document.getElementById('kpi-06-val').innerText = "$ " + formatearMoneda(totalEgresosPuros);
@@ -547,17 +560,55 @@
             recalcularCashflow();
         }
 
+        // POBLAR DROPDOWNS DE OBSERVACIÓN Y EMPRESA DE FORMA DINÁMICA
+        function poblarFiltrosDesplegables() {
+            let selectObs = document.getElementById('filter-obs');
+            let selectEmp = document.getElementById('filter-empresa');
+
+            if (selectObs) {
+                let obsUnicas = Array.from(new Set(facturasDetalle.map(f => f.obs))).sort();
+                selectObs.innerHTML = `<option value="TODOS">Todas las Observaciones</option>`;
+                obsUnicas.forEach(o => {
+                    selectObs.innerHTML += `<option value="${o}">${o}</option>`;
+                });
+            }
+
+            if (selectEmp) {
+                let empUnicas = Array.from(new Set(facturasDetalle.map(f => f.empresa))).sort();
+                selectEmp.innerHTML = `<option value="TODAS">Todas las Empresas</option>`;
+                empUnicas.forEach(e => {
+                    selectEmp.innerHTML += `<option value="${e}">${e}</option>`;
+                });
+            }
+        }
+
+        // =========================================================
+        // RECALCULO DE CASHFLOW CON SIMULADOR DE COBRABILIDAD Y DÉFICIT
+        // =========================================================
         function recalcularCashflow() {
             let saldoInicialTotal = calcularSaldoInicial();
 
             if (semanasOrdenadas.length === 0) return;
 
+            // SIMULADOR DE COBRABILIDAD
+            let pct1 = (parseInt(document.getElementById('slider-pct-1').value) || 0) / 100.0;
+            let pct2 = (parseInt(document.getElementById('slider-pct-2').value) || 0) / 100.0;
+            let pct3 = (parseInt(document.getElementById('slider-pct-3').value) || 0) / 100.0;
+
             let ingSimulados = {};
             let egrSimulados = {};
-            
-            semanasOrdenadas.forEach(s => {
-                ingSimulados[s] = baseIngresosSemanales[s] || 0;
+
+            let numSemanasRemanentes = Math.max(1, semanasOrdenadas.length - 2);
+
+            semanasOrdenadas.forEach((s, idx) => {
                 egrSimulados[s] = 0;
+                if (idx === 0) {
+                    ingSimulados[s] = totalIngresosPuros * pct1;
+                } else if (idx === 1) {
+                    ingSimulados[s] = totalIngresosPuros * pct2;
+                } else {
+                    ingSimulados[s] = (totalIngresosPuros * pct3) / numSemanasRemanentes;
+                }
             });
 
             facturasDetalle.forEach(f => {
@@ -614,11 +665,14 @@
             actualizarGrafico(saldoSeries, ingSimulados, egrSimulados);
         }
 
+        // RENDER DE TABLA DE FACTURAS CON EMPRESA Y FILTRO DE OBSERVACIÓN
         function renderizarTablaFacturas() {
             let tbody = document.getElementById('tabla-facturas-body');
             if (!tbody) return;
             tbody.innerHTML = '';
 
+            let obsSel = document.getElementById('filter-obs').value;
+            let empSel = document.getElementById('filter-empresa').value;
             let searchSel = document.getElementById('filter-search').value.toLowerCase();
 
             let deferredCount = 0;
@@ -632,11 +686,14 @@
                     deferredMonto += item.importe;
                 }
                 
+                let matchObs = (obsSel === "TODOS" || item.obs === obsSel);
+                let matchEmp = (empSel === "TODAS" || item.empresa === empSel);
                 let matchSearch = item.tercero.toLowerCase().includes(searchSel) || 
                                   item.doc.toLowerCase().includes(searchSel) || 
+                                  item.empresa.toLowerCase().includes(searchSel) ||
                                   item.obs.toLowerCase().includes(searchSel);
 
-                if (matchSearch) {
+                if (matchObs && matchEmp && matchSearch) {
                     countVisible++;
                     let optionsHTML = semanasOrdenadas.map((f, i) => {
                         let selected = (item.fechaAjustada === f) ? 'selected' : '';
@@ -648,9 +705,15 @@
                         ? `<span class="px-2 py-1 text-[10px] font-bold rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center gap-1 w-fit"><i data-lucide="alert-triangle" class="w-3 h-3"></i> ⚠️ AVISAR PROVEEDOR</span>`
                         : `<span class="px-2 py-1 text-[10px] font-bold rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1 w-fit"><i data-lucide="check-circle" class="w-3 h-3"></i> ✓ Programado</span>`;
 
+                    let empBadge = "bg-gray-800 text-gray-300";
+                    if (item.empresa.includes("CAPACITACION")) empBadge = "bg-blue-500/20 text-blue-400 border border-blue-500/30";
+                    if (item.empresa.includes("GANADERA")) empBadge = "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+                    if (item.empresa.includes("CARNES")) empBadge = "bg-amber-500/20 text-amber-400 border border-amber-500/30";
+
                     tbody.innerHTML += `
                         <tr class="${rowClass} transition-all">
                             <td class="p-3 font-semibold text-white">${item.doc}</td>
+                            <td class="p-3"><span class="px-2 py-0.5 text-[10px] font-bold rounded-full ${empBadge}">${item.empresa}</span></td>
                             <td class="p-3 text-gray-200">${item.tercero} <span class="text-[10px] text-purple-400 font-semibold block">🏷️ ${item.obs}</span></td>
                             <td class="p-3 text-gray-400 font-medium">${item.fechaOrig}</td>
                             <td class="p-3">
@@ -691,12 +754,17 @@
         }
 
         function actualizarSliders() {
-            let s1 = parseInt(document.getElementById('slider-pct-1').value);
-            let s2 = parseInt(document.getElementById('slider-pct-2').value);
-            let s3 = parseInt(document.getElementById('slider-pct-3').value);
+            let s1 = parseInt(document.getElementById('slider-pct-1').value) || 0;
+            let s2 = parseInt(document.getElementById('slider-pct-2').value) || 0;
+            let s3 = parseInt(document.getElementById('slider-pct-3').value) || 0;
+            
             document.getElementById('label-pct-1').innerText = s1 + "%";
             document.getElementById('label-pct-2').innerText = s2 + "%";
             document.getElementById('label-pct-3').innerText = s3 + "%";
+
+            if (facturasDetalle.length > 0) {
+                recalcularCashflow();
+            }
         }
 
         function actualizarGrafico(saldoSeries, dictIngresos, dictEgresos) {
