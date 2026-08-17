@@ -34,9 +34,9 @@
             <div>
                 <h1 class="text-lg font-bold text-white flex items-center gap-2">
                     Dirección Financiera & Cash Flow Integral
-                    <span class="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-medium">v4.6 Fully Fixed</span>
+                    <span class="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-medium">v5.0 Finnegans Direct</span>
                 </h1>
-                <p class="text-xs text-gray-400">Procesamiento directo de Reporte ERP, reprogramación de pagos y cálculo en tiempo real.</p>
+                <p class="text-xs text-gray-400">Procesamiento directo de Reportes Finnegans ERP, reprogramación de pagos y cálculo en tiempo real.</p>
             </div>
         </div>
     </header>
@@ -73,7 +73,7 @@
                             <i data-lucide="file-up" class="w-5 h-5"></i>
                         </div>
                         <div>
-                            <p class="text-xs font-bold text-white">1. Subir Reporte Semanal ERP</p>
+                            <p class="text-xs font-bold text-white">1. Subir Reporte Finnegans ERP</p>
                             <p id="label-estado-archivo" class="text-[11px] text-gray-400">Ej: Reporte (7).xlsx o Cashflow.xlsx</p>
                         </div>
                         <input type="file" id="excel-input" accept=".xlsx, .xls" class="hidden" onchange="leerArchivoExcel(event)">
@@ -286,7 +286,7 @@
 
     </main>
 
-    <!-- SCRIPTS CORE -->
+    <!-- SCRIPTS CORE: BUSCADOR UNIVERSAL DE COLUMNAS Y PARSER ROBUSTO -->
     <script>
         lucide.createIcons();
         let chartCashflow = null;
@@ -298,7 +298,7 @@
         let totalIngresosPuros = 0;
         let totalEgresosPuros = 0;
 
-        // DICCIONARIO BASE DE OBSERVACIONES
+        // DICCIONARIO BASE DE OBSERVACIONES POR PROVEEDOR
         let maestroObservaciones = {
             "EL TAKA ELECTRICISTA": "Mantenimiento de vehículos",
             "GRANJA EL AMANECER SRL": "Productos de terceros",
@@ -311,7 +311,36 @@
             "PRODUCTORES DE HACIENDA": "Hacienda"
         };
 
-        // PARSER ROBUSTO DE NÚMEROS Y MONEDA
+        // BÚSQUEDA INSENSIBLE A ESPACIOS Y MAYÚSCULAS DE PROPIEDADES EN OBJETOS
+        function getPropVal(row, keyNames) {
+            if (!row) return undefined;
+            let keys = Object.keys(row);
+            
+            // 1. Coincidencia Exacta Limpia (Sin espacios ni mayúsculas)
+            for (let target of keyNames) {
+                let tClean = target.toLowerCase().trim().replace(/\s+/g, '');
+                for (let k of keys) {
+                    let kClean = k.toLowerCase().trim().replace(/\s+/g, '');
+                    if (kClean === tClean && row[k] !== undefined && row[k] !== null && row[k] !== "") {
+                        return row[k];
+                    }
+                }
+            }
+            
+            // 2. Coincidencia Parcial Limpia
+            for (let target of keyNames) {
+                let tClean = target.toLowerCase().trim();
+                for (let k of keys) {
+                    let kClean = k.toLowerCase().trim();
+                    if (kClean.includes(tClean) && row[k] !== undefined && row[k] !== null && row[k] !== "") {
+                        return row[k];
+                    }
+                }
+            }
+            return undefined;
+        }
+
+        // PARSER ROBUSTO DE NÚMEROS Y MONEDA (CON O SIN $)
         function parseMonto(raw) {
             if (raw === null || raw === undefined || raw === "") return 0.0;
             if (typeof raw === "number") return isNaN(raw) ? 0.0 : raw;
@@ -319,22 +348,28 @@
             let s = String(raw).trim();
             if (!s || s === "-") return 0.0;
             
-            // Eliminar símbolos de moneda y caracteres no numéricos excepto dígitos, guión, coma y punto
             s = s.replace(/[^\d.,-]/g, '');
             if (!s || s === "-") return 0.0;
 
             if (s.includes(',') && s.includes('.')) {
                 if (s.lastIndexOf(',') > s.lastIndexOf('.')) {
-                    s = s.replace(/\./g, '').replace(',', '.'); // Formato argentino 1.234,56
+                    s = s.replace(/\./g, '').replace(',', '.'); // Formato argentino -1.618.107,09 -> -1618107.09
                 } else {
-                    s = s.replace(/,/g, ''); // Formato EE.UU. 1,234.56
+                    s = s.replace(/,/g, ''); // Formato EE.UU. -1,618,107.09 -> -1618107.09
                 }
             } else if (s.includes(',')) {
-                s = s.replace(',', '.');
+                let parts = s.split(',');
+                if (parts.length === 2 && parts[1].length <= 2) {
+                    s = s.replace(',', '.');
+                } else {
+                    s = s.replace(/,/g, '');
+                }
             } else if (s.includes('.')) {
                 let parts = s.split('.');
                 if (parts.length > 2) {
                     s = s.replace(/\./g, '');
+                } else if (parts.length === 2 && parts[1].length === 3 && parts[0].length <= 3) {
+                    s = s.replace(/\./g, ''); // Puntos de millar 820.000 -> 820000
                 }
             }
 
@@ -342,7 +377,7 @@
             return isNaN(val) ? 0.0 : val;
         }
 
-        // CÁLCULO INDEPENDIENTE DE DISPONIBILIDADES INICIALES (8 CAMPOS)
+        // CÁLCULO DINÁMICO E INDEPENDIENTE DE DISPONIBILIDADES INICIALES (8 CAMPOS)
         function calcularSaldoInicial() {
             let bna = parseMonto(document.getElementById('saldo-bna').value);
             let galicia = parseMonto(document.getElementById('saldo-galicia').value);
@@ -354,7 +389,6 @@
             let mp = parseMonto(document.getElementById('saldo-mp').value);
             
             let total = bna + galicia + bpn + bpnAhorro + ferrandi + efecCap + efecGan + mp;
-
             let formatted = "$ " + formatearMoneda(total);
             
             let lblSum = document.getElementById('label-sum-disponibilidades');
@@ -398,8 +432,8 @@
 
                 let count = 0;
                 json.forEach(r => {
-                    let prov = String(r.Proveedor || r.Tercero || r.proveedor || r.tercero || "").trim();
-                    let obs = String(r.Observacion || r.Observaciones || r.comisionista || r.Comisionista || "").trim();
+                    let prov = String(getPropVal(r, ['Proveedor', 'Tercero']) || "").trim();
+                    let obs = String(getPropVal(r, ['Observacion', 'Observaciones', 'Comisionista']) || "").trim();
                     if (prov && obs) {
                         maestroObservaciones[prov] = obs;
                         count++;
@@ -424,11 +458,10 @@
                 let data = new Uint8Array(e.target.result);
                 let workbook = XLSX.read(data, {type: 'array', cellDates: true});
                 
-                let nombreHoja = workbook.SheetNames.find(name => 
-                    name.toLowerCase().replace(/\s+/g, '') === 'hoja1'
-                ) || workbook.SheetNames.find(name => 
-                    name.toLowerCase().includes('hoja')
-                ) || workbook.SheetNames[0];
+                let nombreHoja = workbook.SheetNames.find(name => {
+                    let clean = name.toLowerCase().replace(/\s+/g, '');
+                    return clean === 'hoja1' || clean === 'hoja' || clean === 'sheet1' || clean === 'cashflow';
+                }) || workbook.SheetNames[0];
 
                 let sheet = workbook.Sheets[nombreHoja];
                 if (!sheet) {
@@ -457,27 +490,30 @@
             totalEgresosPuros = 0;
 
             rawData.forEach((row, idx) => {
-                let origen = String(row.Origen || row.origen || "").trim().toLowerCase();
-                let tipo = String(row.Tipo || row.tipo || "").trim().toLowerCase();
+                let origenRaw = getPropVal(row, ['Origen', 'origen']);
+                let origen = String(origenRaw || "").trim().toLowerCase();
                 
+                let tipoRaw = getPropVal(row, ['Tipo', 'tipo']);
+                let tipo = String(tipoRaw || "").trim().toLowerCase();
+
                 if (origen === "movimiento") {
-                    let f = row.Periodo || row.periodo || row.Fecha || row.fecha;
+                    let fRaw = getPropVal(row, ['Periodo', 'periodo', 'Fecha', 'fecha']);
                     let strFecha = "";
-                    if (f instanceof Date) {
-                        strFecha = f.toISOString().split('T')[0];
-                    } else if (f) {
-                        strFecha = String(f).trim().substring(0, 10);
+                    if (fRaw instanceof Date) {
+                        strFecha = fRaw.toISOString().split('T')[0];
+                    } else if (fRaw) {
+                        strFecha = String(fRaw).trim().substring(0, 10);
                     }
                     
                     if (strFecha) setSemanas.add(strFecha);
                     
-                    let rawImporte = (row.Importe !== undefined) ? row.Importe : (row.importe !== undefined ? row.importe : row.Monto);
+                    let rawImporte = getPropVal(row, ['Importe', 'importe', 'Monto', 'monto', 'Valor']);
                     let importe = parseMonto(rawImporte);
 
-                    let tipoDoc = row["Tipo de Doc."] || row["Tipo de doc."] || row["Tipo Doc"] || row.Doc || "Comprobante";
-                    let tercero = String(row.Tercero || row.tercero || row.Proveedor || row.Cliente || "Sin Especificar").trim();
+                    let tipoDoc = String(getPropVal(row, ['Tipo de Doc.', 'Tipo de doc.', 'Tipo Doc', 'Doc']) || "Comprobante");
+                    let tercero = String(getPropVal(row, ['Tercero', 'tercero', 'Proveedor', 'proveedor', 'Cliente']) || "Sin Especificar").trim();
                     
-                    let rawObs = String(row.Observaciones || row.observaciones || row.Comisionista || row.comisionista || "").trim();
+                    let rawObs = String(getPropVal(row, ['Observaciones', 'observaciones', 'Comisionista', 'comisionista', 'Cuenta']) || "").trim();
                     let obsFinal = (rawObs && rawObs !== "nan" && rawObs !== "null" && rawObs !== "undefined")
                         ? rawObs 
                         : (maestroObservaciones[tercero] || "General");
@@ -496,7 +532,7 @@
                             fechaOrig: strFecha,
                             fechaAjustada: strFecha,
                             obs: obsFinal,
-                            importe: importe // Valor negativo
+                            importe: importe // Negativo
                         });
                     }
                 }
