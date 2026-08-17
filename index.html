@@ -30,9 +30,9 @@
             <div>
                 <h1 class="text-lg font-bold text-white flex items-center gap-2">
                     Dirección Financiera & Cash Flow Integral
-                    <span class="text-xs bg-blue-500/20 text-blue-400 border border-blue-500/30 px-2 py-0.5 rounded-full font-medium">v2.6 Live</span>
+                    <span class="text-xs bg-blue-500/20 text-blue-400 border border-blue-500/30 px-2 py-0.5 rounded-full font-medium">v3.0 Dynamic</span>
                 </h1>
-                <p class="text-xs text-gray-400">Conciliación, Proveedores, Cheques & Indicadores de Gestión (KPI-01 al KPI-08)</p>
+                <p class="text-xs text-gray-400">Simulador de Reprogramación de Vencimientos, Avisos a Proveedores & Control de Iliquidez</p>
             </div>
         </div>
 
@@ -60,7 +60,7 @@
                 <i data-lucide="pie-chart" class="w-4 h-4"></i> 3. Indicadores & KPIs
             </button>
             <button onclick="cambiarPestana('tab-facturas')" id="btn-tab-facturas" class="tab-button px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-800 transition-all">
-                <i data-lucide="receipt" class="w-4 h-4"></i> 4. Facturas a Pagar por Semana
+                <i data-lucide="receipt" class="w-4 h-4"></i> 4. Facturas & Reprogramación ⚡
             </button>
         </div>
     </nav>
@@ -70,7 +70,6 @@
 
         <!-- PESTAÑA 1: CARGAR ARCHIVOS & SALDOS -->
         <section id="tab-cargar" class="space-y-6">
-            
             <div class="bg-[#111827] border border-gray-800 rounded-2xl p-6 space-y-4">
                 <div class="flex items-center justify-between border-b border-gray-800 pb-4">
                     <div>
@@ -173,7 +172,7 @@
             </div>
         </section>
 
-        <!-- PESTAÑA 2: CASH FLOW PROYECTADO & ALERTAS -->
+        <!-- PESTAÑA 2: CASH FLOW PROYECTADO & ALERTAS DINÁMICAS -->
         <section id="tab-cashflow" class="hidden space-y-6">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div class="gradient-card-blue p-5 rounded-2xl shadow-xl space-y-1">
@@ -187,14 +186,14 @@
                     <p class="text-[11px] text-emerald-200">Ventas + Cheques en cartera</p>
                 </div>
                 <div class="gradient-card-amber p-5 rounded-2xl shadow-xl space-y-1">
-                    <p class="text-xs font-bold text-amber-100 uppercase tracking-wider">Egresos Totales (6 Sem)</p>
+                    <p class="text-xs font-bold text-amber-100 uppercase tracking-wider">Egresos Totales Ajustados</p>
                     <p id="kpi-egresos" class="text-2xl font-black text-white">$ 2.791.218.564</p>
-                    <p class="text-[11px] text-amber-200">Compras + Hacienda + Gastos</p>
+                    <p class="text-[11px] text-amber-200">Suma con corrimientos aplicados</p>
                 </div>
                 <div class="gradient-card-red p-5 rounded-2xl shadow-xl space-y-1">
                     <p class="text-xs font-bold text-red-100 uppercase tracking-wider">⚠️ Déficit Máximo Acumulado</p>
                     <p id="kpi-deficit" class="text-2xl font-black text-white">-$ 787.759.250</p>
-                    <p class="text-[11px] text-red-200">Alerta: Déficit crítico en Semana 6</p>
+                    <p class="text-[11px] text-red-200">Recalculado con corrimientos</p>
                 </div>
             </div>
 
@@ -325,22 +324,41 @@
             </div>
         </section>
 
-        <!-- PESTAÑA 4: DETALLE DE FACTURAS A PAGAR POR SEMANA (NUEVA SOLAPA) -->
+        <!-- PESTAÑA 4: DETALLE & SIMULADOR DE REPROGRAMACIÓN (RENOVADA) -->
         <section id="tab-facturas" class="hidden space-y-6">
             <div class="flex flex-wrap items-center justify-between gap-4 border-b border-gray-800 pb-4">
                 <div>
                     <h2 class="text-base font-bold text-white flex items-center gap-2">
-                        <i data-lucide="receipt" class="w-5 h-5 text-amber-400"></i> Detalle de Facturas & Pasivos a Pagar por Semana
+                        <i data-lucide="receipt" class="w-5 h-5 text-amber-400"></i> Detalle de Facturas & Reprogramación de Vencimientos ⚡
                     </h2>
-                    <p class="text-xs text-gray-400">Consolidado de obligaciones exigibles con filtros por semana, proveedor y observaciones / comisionista.</p>
+                    <p class="text-xs text-gray-400">Cambie la semana de pago de cualquier comprobante para diferir egresos y nivelar la caja en tiempo real.</p>
                 </div>
             </div>
 
-            <!-- FILTROS SUPERIORES -->
-            <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+            <!-- RESUMEN DE IMPACTO DE CORRIMIENTO -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-1">
+                    <span class="text-xs font-bold text-gray-400 uppercase">Comprobantes Postergados</span>
+                    <p id="label-count-deferred" class="text-2xl font-black text-amber-400">0 Facturas</p>
+                    <p class="text-[11px] text-amber-300/80">Con aviso pendiente a proveedor</p>
+                </div>
+                <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-1">
+                    <span class="text-xs font-bold text-gray-400 uppercase">Monto Total Diferido</span>
+                    <p id="label-monto-deferred" class="text-2xl font-black text-emerald-400">$ 0</p>
+                    <p class="text-[11px] text-emerald-300/80">Alivio liberado de la semana original</p>
+                </div>
+                <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-1 flex flex-col justify-center">
+                    <button onclick="resetearCorrimientos()" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 text-xs text-gray-300 font-semibold py-2 px-3 rounded-xl transition-all flex items-center justify-center gap-2">
+                        <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Restablecer Vencimientos Originales
+                    </button>
+                </div>
+            </div>
+
+            <!-- FILTROS -->
+            <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
                 <div>
-                    <label class="text-gray-400 font-semibold mb-1 block">Filtrar por Semana</label>
-                    <select id="filter-semana" onchange="filtrarFacturas()" class="w-full bg-[#151e2e] border border-gray-700 rounded-lg p-2 text-white font-medium focus:border-blue-500 outline-none">
+                    <label class="text-gray-400 font-semibold mb-1 block">Filtrar por Semana Original</label>
+                    <select id="filter-semana" onchange="renderizarTablaFacturas()" class="w-full bg-[#151e2e] border border-gray-700 rounded-lg p-2 text-white font-medium focus:border-blue-500 outline-none">
                         <option value="TODAS">Todas las Semanas</option>
                         <option value="2026-08-09">Sem 1 (09/08/2026)</option>
                         <option value="2026-08-16">Sem 2 (16/08/2026)</option>
@@ -353,9 +371,9 @@
 
                 <div>
                     <label class="text-gray-400 font-semibold mb-1 block">Filtrar por Observaciones / Comisionista</label>
-                    <select id="filter-obs" onchange="filtrarFacturas()" class="w-full bg-[#151e2e] border border-gray-700 rounded-lg p-2 text-white font-medium focus:border-blue-500 outline-none">
+                    <select id="filter-obs" onchange="renderizarTablaFacturas()" class="w-full bg-[#151e2e] border border-gray-700 rounded-lg p-2 text-white font-medium focus:border-blue-500 outline-none">
                         <option value="TODOS">Todas las Observaciones</option>
-                        <option value="SIN_OBS">Sin Observación Específica</option>
+                        <option value="General">Sin Observación Específica</option>
                         <option value="Leandro Monedero">Leandro Monedero</option>
                         <option value="Alfredo Adem">Alfredo Adem</option>
                         <option value="Sebastian Valacco">Sebastian Valacco</option>
@@ -364,31 +382,22 @@
 
                 <div>
                     <label class="text-gray-400 font-semibold mb-1 block">Buscar Proveedor / Tercero</label>
-                    <input type="text" id="filter-search" onkeyup="filtrarFacturas()" placeholder="Ej: Granja, Guerrero, BPN..." class="w-full bg-[#151e2e] border border-gray-700 rounded-lg p-2 text-white placeholder-gray-500 focus:border-blue-500 outline-none">
-                </div>
-
-                <div class="bg-[#1e293b] p-3 rounded-xl border border-amber-500/30 flex flex-col justify-center">
-                    <span class="text-gray-400 font-medium">Total Filtrado a Pagar</span>
-                    <span id="label-total-facturas-filtradas" class="text-lg font-black text-amber-400">-$ 886.947.821</span>
+                    <input type="text" id="filter-search" onkeyup="renderizarTablaFacturas()" placeholder="Ej: Granja, Guerrero, Ñimapu..." class="w-full bg-[#151e2e] border border-gray-700 rounded-lg p-2 text-white placeholder-gray-500 focus:border-blue-500 outline-none">
                 </div>
             </div>
 
-            <!-- TABLA COMPROBANTES A PAGAR -->
+            <!-- TABLA REPROGRAMABLE -->
             <div class="bg-[#111827] border border-gray-800 rounded-2xl overflow-hidden p-4 space-y-3">
-                <div class="flex justify-between items-center px-2">
-                    <span class="text-xs font-bold text-gray-300">Listado Exigible de Obligaciones</span>
-                    <span id="label-count-facturas" class="text-xs text-gray-400 font-medium">Mostrando 12 facturas</span>
-                </div>
-
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs border-collapse">
                         <thead>
                             <tr class="border-b border-gray-800 text-gray-400 font-semibold bg-[#151e2e]">
-                                <th class="p-3">Comprobante / Concepto</th>
+                                <th class="p-3">Comprobante</th>
                                 <th class="p-3">Proveedor / Tercero</th>
-                                <th class="p-3">Semana Exigible</th>
-                                <th class="p-3">Observaciones / Comisionista</th>
-                                <th class="p-3 text-right">Importe a Pagar</th>
+                                <th class="p-3">Sem. Original</th>
+                                <th class="p-3">Acción de Pago / Reprogramación</th>
+                                <th class="p-3">Estado / Alerta Proveedor</th>
+                                <th class="p-3 text-right">Importe ($)</th>
                             </tr>
                         </thead>
                         <tbody id="tabla-facturas-body" class="divide-y divide-gray-800 text-gray-300">
@@ -400,33 +409,30 @@
 
     </main>
 
-    <!-- SCRIPTS JAVASCRIPT -->
+    <!-- SCRIPTS JAVASCRIPT CON LÓGICA DE DÉFICIT DINÁMICO -->
     <script>
         lucide.createIcons();
 
-        let datosSemanales = [
-            { semana: "Sem 1 (09/08)", ingresos: 912740358.83, egresos: -886947820.80 },
-            { semana: "Sem 2 (16/08)", ingresos: 205454506.91, egresos: -526479707.37 },
-            { semana: "Sem 3 (23/08)", ingresos: 44564663.83,  egresos: -437525531.20 },
-            { semana: "Sem 4 (30/08)", ingresos: 580672876.92, egresos: -426248658.41 },
-            { semana: "Sem 5 (06/09)", ingresos: 18026908.07,  egresos: -304707070.61 },
-            { semana: "Sem 6 (13/09)", ingresos: 0.0,          egresos: -209309776.29 }
-        ];
+        // Base semanal estática de ingresos y egresos
+        let baseIngresos = [912740358.83, 205454506.91, 44564663.83, 580672876.92, 18026908.07, 0.0];
+        let baseEgresos = [-886947820.80, -526479707.37, -437525531.20, -426248658.41, -304707070.61, -209309776.29];
+        let semanasFechas = ["2026-08-09", "2026-08-16", "2026-08-23", "2026-08-30", "2026-09-06", "2026-09-13"];
+        let semanasNombres = ["Sem 1 (09/08)", "Sem 2 (16/08)", "Sem 3 (23/08)", "Sem 4 (30/08)", "Sem 5 (06/09)", "Sem 6 (13/09)"];
 
-        // Muestra representativa de facturas a pagar cargadas desde Flujo de fondos.xlsx
+        // Comprobantes detallados con soporte para asignación de fecha ajustada
         let facturasDetalle = [
-            { doc: "(FC) Factura de Compra - SR", tercero: "ESTABLECIMIENTO ÑIMAPU S.A.", fecha: "2026-08-09", obs: "General", importe: 38898592.00 },
-            { doc: "(FC) Factura de Compra - SR", tercero: "SEGATORI ANIBAL ORLANDO", fecha: "2026-08-09", obs: "Leandro Monedero", importe: 26520000.00 },
-            { doc: "(FC) Factura de Compra - SR", tercero: "GRANJA EL AMANECER SRL", fecha: "2026-08-09", obs: "General", importe: 1660771.00 },
-            { doc: "(FC) Factura de Compra - SR", tercero: "GRANJA EL AMANECER SRL", fecha: "2026-08-09", obs: "General", importe: 1618107.09 },
-            { doc: "(FC) Factura de Compra - SR", tercero: "GUERRERO HUGO NORBERTO", fecha: "2026-08-09", obs: "Alfredo Adem", importe: 600000.00 },
-            { doc: "Cuenta de Compra y Líquido Producto", tercero: "PRODUCTORES DE HACIENDA", fecha: "2026-08-09", obs: "Sebastian Valacco", importe: 383556427.60 },
-            { doc: "Cheques propios emitidos", tercero: "OTERMIN Y MASSINI SAS", fecha: "2026-08-09", obs: "General", importe: 61341871.29 },
-            { doc: "(FC) Factura de Compra - SR", tercero: "GRANJA EL AMANECER SRL", fecha: "2026-08-16", obs: "General", importe: 360002311.27 },
-            { doc: "(FC) Factura de Compra - SR", tercero: "SCHINDLER MARTIN", fecha: "2026-08-23", obs: "Sebastian Valacco", importe: 344952388.09 },
-            { doc: "(FC) Factura de Compra - SR", tercero: "BLD AGRO S.A.", fecha: "2026-08-30", obs: "Leandro Monedero", importe: 284698135.45 },
-            { doc: "Cheques propios emitidos", tercero: "OTERMIN Y MASSINI SAS", fecha: "2026-09-06", obs: "General", importe: 48308988.23 },
-            { doc: "Prestamos", tercero: "PRESTAMO HIPOTECARIO BPN 2304582", fecha: "2026-09-13", obs: "General", importe: 5657976.58 }
+            { id: 1, doc: "(FC) Factura de Compra - SR", tercero: "ESTABLECIMIENTO ÑIMAPU S.A.", fechaOrig: "2026-08-09", fechaAjustada: "2026-08-09", obs: "General", importe: 38898592.00 },
+            { id: 2, doc: "(FC) Factura de Compra - SR", tercero: "SEGATORI ANIBAL ORLANDO", fechaOrig: "2026-08-09", fechaAjustada: "2026-08-09", obs: "Leandro Monedero", importe: 26520000.00 },
+            { id: 3, doc: "(FC) Factura de Compra - SR", tercero: "GRANJA EL AMANECER SRL", fechaOrig: "2026-08-09", fechaAjustada: "2026-08-09", obs: "General", importe: 1660771.00 },
+            { id: 4, doc: "(FC) Factura de Compra - SR", tercero: "GRANJA EL AMANECER SRL", fechaOrig: "2026-08-09", fechaAjustada: "2026-08-09", obs: "General", importe: 1618107.09 },
+            { id: 5, doc: "(FC) Factura de Compra - SR", tercero: "GUERRERO HUGO NORBERTO", fechaOrig: "2026-08-09", fechaAjustada: "2026-08-09", obs: "Alfredo Adem", importe: 600000.00 },
+            { id: 6, doc: "Cuenta de Compra Hacienda", tercero: "PRODUCTORES DE HACIENDA", fechaOrig: "2026-08-09", fechaAjustada: "2026-08-09", obs: "Sebastian Valacco", importe: 383556427.60 },
+            { id: 7, doc: "Cheques Propios Emitidos", tercero: "OTERMIN Y MASSINI SAS", fechaOrig: "2026-08-09", fechaAjustada: "2026-08-09", obs: "General", importe: 61341871.29 },
+            { id: 8, doc: "(FC) Factura de Compra - SR", tercero: "GRANJA EL AMANECER SRL", fechaOrig: "2026-08-16", fechaAjustada: "2026-08-16", obs: "General", importe: 360002311.27 },
+            { id: 9, doc: "(FC) Factura de Compra - SR", tercero: "SCHINDLER MARTIN", fechaOrig: "2026-08-23", fechaAjustada: "2026-08-23", obs: "Sebastian Valacco", importe: 344952388.09 },
+            { id: 10, doc: "(FC) Factura de Compra - SR", tercero: "BLD AGRO S.A.", fechaOrig: "2026-08-30", fechaAjustada: "2026-08-30", obs: "Leandro Monedero", importe: 284698135.45 },
+            { id: 11, doc: "Cheques Propios Emitidos", tercero: "OTERMIN Y MASSINI SAS", fechaOrig: "2026-09-06", fechaAjustada: "2026-09-06", obs: "General", importe: 48308988.23 },
+            { id: 12, doc: "Prestamos Bancarios", tercero: "PRESTAMO HIPOTECARIO BPN", fechaOrig: "2026-09-13", fechaAjustada: "2026-09-13", obs: "General", importe: 5657976.58 }
         ];
 
         let chartCashflow = null;
@@ -441,10 +447,9 @@
             });
             document.getElementById('btn-' + tabId).classList.add('tab-active');
             
-            if (tabId === 'tab-cashflow' || tabId === 'tab-kpis') {
-                recalcularTodo();
-            } else if (tabId === 'tab-facturas') {
-                filtrarFacturas();
+            recalcularTodo();
+            if (tabId === 'tab-facturas') {
+                renderizarTablaFacturas();
             }
         }
 
@@ -458,6 +463,22 @@
             document.getElementById('label-pct-3').innerText = s3 + "%";
 
             recalcularTodo();
+        }
+
+        // CAMBIO DINÁMICO DE VENCIMIENTO DE FACTURA
+        function cambiarVencimientoFactura(facturaId, nuevaFecha) {
+            let item = facturasDetalle.find(f => f.id === facturaId);
+            if (item) {
+                item.fechaAjustada = nuevaFecha;
+                recalcularTodo();
+                renderizarTablaFacturas();
+            }
+        }
+
+        function resetearCorrimientos() {
+            facturasDetalle.forEach(f => f.fechaAjustada = f.fechaOrig);
+            recalcularTodo();
+            renderizarTablaFacturas();
         }
 
         function recalcularTodo() {
@@ -474,6 +495,19 @@
             let labelSum = document.getElementById('label-sum-disponibilidades');
             if (labelSum) labelSum.innerText = "$ " + formatearMoneda(saldoInicialTotal);
 
+            // Copiar egresos base para aplicar deltas de corrimiento
+            let egresosAjustados = [...baseEgresos];
+
+            facturasDetalle.forEach(item => {
+                if (item.fechaOrig !== item.fechaAjustada) {
+                    let idxOrig = semanasFechas.indexOf(item.fechaOrig);
+                    let idxDest = semanasFechas.indexOf(item.fechaAjustada);
+
+                    if (idxOrig !== -1) egresosAjustados[idxOrig] += item.importe; // Aliviar origen
+                    if (idxDest !== -1) egresosAjustados[idxDest] -= item.importe; // Cargar destino
+                }
+            });
+
             let saldoAcumulado = saldoInicialTotal;
             let saldoSeries = [];
             let deficitMax = 0;
@@ -481,8 +515,10 @@
             let tbody = document.getElementById('tabla-cashflow-body');
             if (tbody) tbody.innerHTML = '';
 
-            datosSemanales.forEach((row) => {
-                let flujoNeto = row.ingresos + row.egresos;
+            semanasNombres.forEach((semNom, idx) => {
+                let ing = baseIngresos[idx];
+                let egr = egresosAjustados[idx];
+                let flujoNeto = ing + egr;
                 saldoAcumulado += flujoNeto;
                 saldoSeries.push(saldoAcumulado);
 
@@ -502,9 +538,9 @@
                 if (tbody) {
                     tbody.innerHTML += `
                         <tr class="${saldoAcumulado < 0 ? 'bg-red-950/20' : ''}">
-                            <td class="py-2.5 font-semibold text-white">${row.semana}</td>
-                            <td class="py-2.5 text-right text-emerald-400 font-medium">$ ${formatearMoneda(row.ingresos)}</td>
-                            <td class="py-2.5 text-right text-red-400 font-medium">-$ ${formatearMoneda(Math.abs(row.egresos))}</td>
+                            <td class="py-2.5 font-semibold text-white">${semNom}</td>
+                            <td class="py-2.5 text-right text-emerald-400 font-medium">$ ${formatearMoneda(ing)}</td>
+                            <td class="py-2.5 text-right text-red-400 font-medium">-$ ${formatearMoneda(Math.abs(egr))}</td>
                             <td class="py-2.5 text-right font-bold ${saldoAcumulado < 0 ? 'text-red-400' : 'text-white'}">$ ${formatearMoneda(saldoAcumulado)}</td>
                             <td class="py-2.5 text-center">
                                 <span class="px-2 py-0.5 text-[10px] font-bold rounded-full ${badgeClass}">${estadoText}</span>
@@ -516,76 +552,96 @@
 
             let kpiCajaIni = document.getElementById('kpi-caja-ini');
             let kpiDeficit = document.getElementById('kpi-deficit');
+            let kpiEgresos = document.getElementById('kpi-egresos');
             let kpi01 = document.getElementById('kpi-01-val');
+
+            let egresosTotalesAbs = absSum(egresosAjustados);
 
             if (kpiCajaIni) kpiCajaIni.innerText = "$ " + formatearMoneda(saldoInicialTotal);
             if (kpiDeficit) kpiDeficit.innerText = "$ " + formatearMoneda(deficitMax);
+            if (kpiEgresos) kpiEgresos.innerText = "$ " + formatearMoneda(egresosTotalesAbs);
             if (kpi01) kpi01.innerText = "$ " + formatearMoneda(saldoInicialTotal);
 
-            actualizarGrafico(saldoSeries);
+            actualizarGrafico(saldoSeries, egresosAjustados);
         }
 
-        // LÓGICA DE FILTRADO DE FACTURAS EN LA NUEVA SOLAPA
-        function filtrarFacturas() {
+        function absSum(arr) {
+            return arr.reduce((acc, val) => acc + Math.abs(val), 0);
+        }
+
+        // TABLA REPROGRAMABLE CON CONTROLES INTERACTIVOS
+        function renderizarTablaFacturas() {
             let semSel = document.getElementById('filter-semana').value;
             let obsSel = document.getElementById('filter-obs').value;
             let searchSel = document.getElementById('filter-search').value.toLowerCase();
 
             let tbody = document.getElementById('tabla-facturas-body');
+            if (!tbody) return;
             tbody.innerHTML = '';
 
-            let totalFiltrado = 0;
-            let count = 0;
+            let deferredCount = 0;
+            let deferredMonto = 0;
 
             facturasDetalle.forEach(item => {
-                let matchSem = (semSel === "TODAS" || item.fecha === semSel);
-                let matchObs = true;
-                
-                if (obsSel === "SIN_OBS") {
-                    matchObs = (item.obs === "General" || item.obs === "");
-                } else if (obsSel !== "TODOS") {
-                    matchObs = (item.obs === obsSel);
+                let isDeferred = (item.fechaOrig !== item.fechaAjustada);
+                if (isDeferred) {
+                    deferredCount++;
+                    deferredMonto += item.importe;
                 }
 
+                let matchSem = (semSel === "TODAS" || item.fechaOrig === semSel);
+                let matchObs = (obsSel === "TODOS" || item.obs === obsSel);
                 let matchSearch = item.tercero.toLowerCase().includes(searchSel) || item.doc.toLowerCase().includes(searchSel);
 
                 if (matchSem && matchObs && matchSearch) {
-                    totalFiltrado += item.importe;
-                    count++;
+                    
+                    let optionsHTML = semanasFechas.map((f, i) => {
+                        let selected = (item.fechaAjustada === f) ? 'selected' : '';
+                        return `<option value="${f}" ${selected}>Pagar en ${semanasNombres[i]}</option>`;
+                    }).join('');
 
-                    let obsPill = "bg-gray-800 text-gray-300";
-                    if (item.obs === "Leandro Monedero") obsPill = "bg-blue-500/20 text-blue-400 border border-blue-500/30";
-                    if (item.obs === "Alfredo Adem") obsPill = "bg-purple-500/20 text-purple-400 border border-purple-500/30";
-                    if (item.obs === "Sebastian Valacco") obsPill = "bg-amber-500/20 text-amber-400 border border-amber-500/30";
+                    let rowClass = isDeferred ? 'bg-amber-950/20 border-l-4 border-l-amber-500' : 'hover:bg-[#151e2e]';
+                    let badgeStatus = isDeferred 
+                        ? `<span class="px-2 py-1 text-[10px] font-bold rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center gap-1 w-fit"><i data-lucide="alert-triangle" class="w-3 h-3"></i> ⚠️ AVISAR PROVEEDOR</span>`
+                        : `<span class="px-2 py-1 text-[10px] font-bold rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1 w-fit"><i data-lucide="check-circle" class="w-3 h-3"></i> ✓ Programado en Término</span>`;
 
                     tbody.innerHTML += `
-                        <tr class="hover:bg-[#151e2e] transition-all">
+                        <tr class="${rowClass} transition-all">
                             <td class="p-3 font-semibold text-white">${item.doc}</td>
                             <td class="p-3 text-gray-200">${item.tercero}</td>
-                            <td class="p-3 font-medium text-blue-400">${item.fecha}</td>
-                            <td class="p-3"><span class="px-2 py-0.5 text-[10px] font-bold rounded-full ${obsPill}">${item.obs}</span></td>
+                            <td class="p-3 text-gray-400 font-medium">${item.fechaOrig}</td>
+                            <td class="p-3">
+                                <select onchange="cambiarVencimientoFactura(${item.id}, this.value)" class="bg-[#151e2e] border border-blue-500/50 rounded-lg p-1.5 text-xs text-blue-300 font-semibold focus:outline-none">
+                                    ${optionsHTML}
+                                </select>
+                            </td>
+                            <td class="p-3">${badgeStatus}</td>
                             <td class="p-3 text-right font-bold text-red-400">-$ ${formatearMoneda(item.importe)}</td>
                         </tr>
                     `;
                 }
             });
 
-            document.getElementById('label-total-facturas-filtradas').innerText = "-$ " + formatearMoneda(totalFiltrado);
-            document.getElementById('label-count-facturas').innerText = `Mostrando ${count} comprobantes exigibles`;
+            lucide.createIcons();
+
+            let lblCount = document.getElementById('label-count-deferred');
+            let lblMonto = document.getElementById('label-monto-deferred');
+
+            if (lblCount) lblCount.innerText = deferredCount + " Facturas";
+            if (lblMonto) lblMonto.innerText = "$ " + formatearMoneda(deferredMonto);
         }
 
         function formatearMoneda(valor) {
             return new Intl.NumberFormat('es-AR', { maximumFractionDigits: 0 }).format(valor);
         }
 
-        function actualizarGrafico(saldoSeries) {
+        function actualizarGrafico(saldoSeries, egresosAjustados) {
             let canvas = document.getElementById('chartCashflow');
             if (!canvas) return;
             let ctx = canvas.getContext('2d');
             
-            let semanasLabels = datosSemanales.map(d => d.semana);
-            let ingresosData = datosSemanales.map(d => d.ingresos / 1e6);
-            let egresosData = datosSemanales.map(d => d.egresos / 1e6);
+            let ingresosData = baseIngresos.map(v => v / 1e6);
+            let egresosData = egresosAjustados.map(v => v / 1e6);
             let saldoData = saldoSeries.map(s => s / 1e6);
 
             if (chartCashflow) chartCashflow.destroy();
@@ -593,7 +649,7 @@
             chartCashflow = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: semanasLabels,
+                    labels: semanasNombres,
                     datasets: [
                         { label: 'Ingresos ($M)', data: ingresosData, backgroundColor: '#10b981', borderRadius: 6 },
                         { label: 'Egresos ($M)', data: egresosData, backgroundColor: '#f43f5e', borderRadius: 6 },
@@ -614,7 +670,7 @@
 
         window.onload = function() {
             recalcularTodo();
-            filtrarFacturas();
+            renderizarTablaFacturas();
         };
     </script>
 </body>
