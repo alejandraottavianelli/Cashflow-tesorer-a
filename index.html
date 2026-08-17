@@ -34,9 +34,9 @@
             <div>
                 <h1 class="text-lg font-bold text-white flex items-center gap-2">
                     Dirección Financiera & Cash Flow Integral
-                    <span class="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-medium">v5.5 Cascading Aging</span>
+                    <span class="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-medium">v5.6 Maestro Priority</span>
                 </h1>
-                <p class="text-xs text-gray-400">Modelo de Cascada Dinámica por Vencimiento, Reprogramación y Control de Iliquidez.</p>
+                <p class="text-xs text-gray-400">Asignación prioritaria de observaciones por Maestro, reprogramación de pagos y cascada de cobro.</p>
             </div>
         </div>
     </header>
@@ -256,7 +256,7 @@
 
     </main>
 
-    <!-- SCRIPTS CORE: CASCADA Y FILTROS -->
+    <!-- SCRIPTS CORE CON PRIORIDAD MAESTRO Y CASCADA DE COBRANZA -->
     <script>
         lucide.createIcons();
         let chartCashflow = null;
@@ -277,7 +277,8 @@
             "BLD AGRO S.A.": "Leandro Monedero",
             "CALF-COOPERATIVA SV PUBLICOS": "Servicios Públicos",
             "BENEDETTI JORGE ALBERTO": "Sebastian Valacco",
-            "PRODUCTORES DE HACIENDA": "Hacienda"
+            "PRODUCTORES DE HACIENDA": "Hacienda",
+            "COOP.DE T.F.J.J.GOMEZ LTDA": "Faenadores"
         };
 
         function getPropVal(row, keyNames) {
@@ -395,16 +396,26 @@
                 let count = 0;
                 json.forEach(r => {
                     let prov = String(getPropVal(r, ['Proveedor', 'Tercero']) || "").trim();
-                    let obs = String(getPropVal(r, ['Observacion', 'Observaciones', 'Comisionista']) || "").trim();
+                    let emp = String(getPropVal(r, ['Empresa', 'empresa']) || "").trim();
+                    let obs = String(getPropVal(r, ['Observacion', 'Observaciones', 'Comisionista', 'Categoria']) || "").trim();
+                    
                     if (prov && obs) {
                         maestroObservaciones[prov] = obs;
+                        if (emp) {
+                            maestroObservaciones[prov + " | " + emp] = obs; // Asignación por empresa
+                        }
                         count++;
                     }
                 });
 
                 document.getElementById('label-estado-maestro').innerText = "✓ Maestro cargado (" + count + " asociaciones).";
                 document.getElementById('label-estado-maestro').classList.add("text-purple-400");
-                alert("✓ Maestro de observaciones cargado con " + count + " proveedores.");
+                alert("✓ Maestro de observaciones cargado con " + count + " reglas.");
+                
+                if (facturasDetalle.length > 0) {
+                    poblarFiltrosDesplegables();
+                    renderizarTablaFacturas();
+                }
             };
             reader.readAsArrayBuffer(file);
         }
@@ -476,10 +487,28 @@
                     let tipoDoc = String(getPropVal(row, ['Tipo de Doc.', 'Tipo de doc.', 'Tipo Doc', 'Doc']) || "Comprobante");
                     let tercero = String(getPropVal(row, ['Tercero', 'tercero', 'Proveedor', 'proveedor', 'Cliente']) || "Sin Especificar").trim();
                     
-                    let rawObs = String(getPropVal(row, ['Observaciones', 'observaciones', 'Comisionista', 'comisionista', 'Cuenta']) || "").trim();
-                    let obsFinal = (rawObs && rawObs !== "nan" && rawObs !== "null" && rawObs !== "undefined")
-                        ? rawObs 
-                        : (maestroObservaciones[tercero] || "General");
+                    let rawObs = String(getPropVal(row, ['Observaciones', 'observaciones', 'Comisionista']) || "").trim();
+                    
+                    // PRIORIDAD CRÍTICA DE ASIGNACIÓN:
+                    // 1. Observaciones del reporte ERP si existen
+                    // 2. Maestro por Proveedor + Empresa combinado
+                    // 3. Maestro por Proveedor simple
+                    // 4. Cuenta contable del reporte o "General"
+                    let keyCombo = tercero + " | " + empresa;
+                    let obsFinal = "General";
+
+                    if (rawObs && rawObs !== "nan" && rawObs !== "null" && rawObs !== "undefined") {
+                        obsFinal = rawObs;
+                    } else if (maestroObservaciones[keyCombo]) {
+                        obsFinal = maestroObservaciones[keyCombo];
+                    } else if (maestroObservaciones[tercero]) {
+                        obsFinal = maestroObservaciones[tercero];
+                    } else {
+                        let cuentaRaw = String(getPropVal(row, ['Cuenta', 'cuenta']) || "").trim();
+                        if (cuentaRaw && cuentaRaw !== "nan" && cuentaRaw !== "null" && cuentaRaw !== "undefined") {
+                            obsFinal = cuentaRaw;
+                        }
+                    }
 
                     if (tipo === "ingreso") {
                         if (!baseIngresosSemanales[strFecha]) baseIngresosSemanales[strFecha] = 0;
@@ -547,7 +576,6 @@
             let pct2 = (parseInt(document.getElementById('slider-pct-2').value) || 0) / 100.0;
             let pct3 = (parseInt(document.getElementById('slider-pct-3').value) || 0) / 100.0;
             
-            // Remanente para semanas subsiguientes
             let pctRemanente = Math.max(0, 1.0 - (pct1 + pct2 + pct3));
 
             let ingSimulados = {};
@@ -562,19 +590,15 @@
             semanasOrdenadas.forEach((sOrig, iOrig) => {
                 let montoOrig = baseIngresosSemanales[sOrig] || 0;
 
-                // Semana de emisión (Sem 0)
                 if (iOrig < semanasOrdenadas.length) {
                     ingSimulados[semanasOrdenadas[iOrig]] += montoOrig * pct1;
                 }
-                // Semana +1 (+7 días)
                 if (iOrig + 1 < semanasOrdenadas.length) {
                     ingSimulados[semanasOrdenadas[iOrig + 1]] += montoOrig * pct2;
                 }
-                // Semana +2 (+14 días)
                 if (iOrig + 2 < semanasOrdenadas.length) {
                     ingSimulados[semanasOrdenadas[iOrig + 2]] += montoOrig * pct3;
                 }
-                // Semanas subsiguientes
                 if (iOrig + 3 < semanasOrdenadas.length) {
                     let numRem = semanasOrdenadas.length - (iOrig + 3);
                     let cuotaRem = (montoOrig * pctRemanente) / numRem;
@@ -584,7 +608,6 @@
                 }
             });
 
-            // Asignar Egresos aplicando reprogramaciones
             facturasDetalle.forEach(f => {
                 let sAjust = f.fechaAjustada;
                 if (!egrSimulados[sAjust]) egrSimulados[sAjust] = 0;
