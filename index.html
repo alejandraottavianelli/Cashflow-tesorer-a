@@ -237,34 +237,39 @@
         // ==========================================
         // LECTURA REAL DEL ARCHIVO EXCEL (SheetJS)
         // ==========================================
-        function leerArchivoExcel(event) {
-            let file = event.target.files[0];
-            if (!file) return;
+      function leerArchivoExcel(event) {
+    let file = event.target.files[0];
+    if (!file) return;
 
-            document.getElementById('label-estado-archivo').innerText = "Procesando " + file.name + "...";
+    document.getElementById('label-estado-archivo').innerText = "Procesando " + file.name + "...";
 
-            let reader = new FileReader();
-            reader.onload = function(e) {
-                let data = new Uint8Array(e.target.result);
-                let workbook = XLSX.read(data, {type: 'array', cellDates: true});
-                
-                // Asegurarnos que existe 'hoja1'
-                if (!workbook.Sheets['hoja1']) {
-                    alert("Error: El Excel no contiene una pestaña llamada 'hoja1'.");
-                    return;
-                }
-
-                let jsonHoja1 = XLSX.utils.sheet_to_json(workbook.Sheets['hoja1']);
-                procesarDatos(jsonHoja1);
-                
-                document.getElementById('label-estado-archivo').innerText = "✓ Excel cargado (" + facturasDetalle.length + " facturas detectadas).";
-                document.getElementById('label-estado-archivo').classList.add("text-emerald-400");
-                
-                alert("✓ Archivo procesado correctamente. Revisa el flujo de fondos.");
-                cambiarPestana('tab-cashflow');
-            };
-            reader.readAsArrayBuffer(file);
+    let reader = new FileReader();
+    reader.onload = function(e) {
+        let data = new Uint8Array(e.target.result);
+        let workbook = XLSX.read(data, {type: 'array', cellDates: true});
+        
+        // Búsqueda flexible: ignora mayúsculas, minúsculas y espacios (detecta "Hoja 1", "hoja1", "Hoja1", etc.)
+        let nombreHoja1 = workbook.SheetNames.find(name => 
+            name.toLowerCase().replace(/\s+/g, '') === 'hoja1'
+        ) || workbook.SheetNames[0]; // Si no la encuentra por nombre, toma la primera pestaña por defecto
+        
+        let sheet = workbook.Sheets[nombreHoja1];
+        if (!sheet) {
+            alert("Error: No se pudo leer la pestaña de datos en el archivo Excel.");
+            return;
         }
+
+        let jsonHoja1 = XLSX.utils.sheet_to_json(sheet);
+        procesarDatos(jsonHoja1);
+        
+        document.getElementById('label-estado-archivo').innerText = "✓ Excel cargado (" + facturasDetalle.length + " facturas detectadas).";
+        document.getElementById('label-estado-archivo').classList.add("text-emerald-400");
+        
+        alert("✓ Archivo procesado correctamente. Revisa el flujo de fondos.");
+        cambiarPestana('tab-cashflow');
+    };
+    reader.readAsArrayBuffer(file);
+}
 
         // ==========================================
         // LIMPIEZA Y AGRUPAMIENTO DE DATOS
