@@ -10,6 +10,11 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- SheetJS (Para leer el Excel) -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- Moment.js para manejo de fechas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    
     <style>
         body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background-color: #0b0f19; color: #f8fafc; }
         .gradient-card-green { background: linear-gradient(135deg, #059669 0%, #10b981 100%); }
@@ -17,6 +22,7 @@
         .gradient-card-red { background: linear-gradient(135deg, #991b1b 0%, #ef4444 100%); }
         .gradient-card-amber { background: linear-gradient(135deg, #b45309 0%, #f59e0b 100%); }
         .tab-active { background-color: #2563eb !important; color: #ffffff !important; font-weight: 600; }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -30,20 +36,10 @@
             <div>
                 <h1 class="text-lg font-bold text-white flex items-center gap-2">
                     Dirección Financiera & Cash Flow Integral
-                    <span class="text-xs bg-blue-500/20 text-blue-400 border border-blue-500/30 px-2 py-0.5 rounded-full font-medium">v3.0 Dynamic</span>
+                    <span class="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-medium">v4.0 Excel Reader</span>
                 </h1>
-                <p class="text-xs text-gray-400">Simulador de Reprogramación de Vencimientos, Avisos a Proveedores & Control de Iliquidez</p>
+                <p class="text-xs text-gray-400">Procesamiento real del archivo Flujo de fondos.xlsx y reprogramación de vencimientos.</p>
             </div>
-        </div>
-
-        <div class="flex items-center gap-3">
-            <div class="bg-[#1f2937] border border-gray-700 px-3 py-1.5 rounded-lg flex items-center gap-2 text-xs text-gray-300">
-                <i data-lucide="calendar" class="w-4 h-4 text-blue-400"></i>
-                <span>Período: <strong>Agosto 2026</strong></span>
-            </div>
-            <button onclick="cambiarPestana('tab-cashflow')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 shadow-lg shadow-emerald-600/20 transition-all">
-                <i data-lucide="zap" class="w-4 h-4"></i> Cargar Demo
-            </button>
         </div>
     </header>
 
@@ -71,28 +67,22 @@
         <!-- PESTAÑA 1: CARGAR ARCHIVOS & SALDOS -->
         <section id="tab-cargar" class="space-y-6">
             <div class="bg-[#111827] border border-gray-800 rounded-2xl p-6 space-y-4">
-                <div class="flex items-center justify-between border-b border-gray-800 pb-4">
-                    <div>
-                        <h2 class="text-base font-bold text-white flex items-center gap-2">
-                            <i data-lucide="file-spreadsheet" class="w-5 h-5 text-blue-500"></i> Módulo de Importación de Archivos (Flujo de fondos.xlsx)
-                        </h2>
-                        <p class="text-xs text-gray-400">Cargue el archivo unificado para consolidar el Cash Flow y recalcular indicadores.</p>
-                    </div>
-                </div>
-
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    
+                    <!-- ZONA DE CARGA DE EXCEL -->
                     <div class="border-2 border-dashed border-gray-700 hover:border-blue-500 bg-[#151e2e] rounded-xl p-6 text-center space-y-3 transition-all cursor-pointer">
                         <div class="w-12 h-12 bg-blue-500/10 text-blue-500 rounded-full flex items-center justify-center mx-auto">
                             <i data-lucide="file-up" class="w-6 h-6"></i>
                         </div>
                         <div>
                             <p class="text-sm font-semibold text-white">Subir Flujo de fondos.xlsx</p>
-                            <p class="text-xs text-gray-400">Soporta hojas 'hoja1' y 'hoja2'</p>
+                            <p id="label-estado-archivo" class="text-xs text-gray-400">Esperando archivo...</p>
                         </div>
-                        <input type="file" id="excel-input" accept=".xlsx, .xls" class="hidden" onchange="alert('✓ Archivo cargado correctamente.')">
+                        <input type="file" id="excel-input" accept=".xlsx, .xls" class="hidden" onchange="leerArchivoExcel(event)">
                         <button onclick="document.getElementById('excel-input').click()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-1.5 rounded-lg text-xs font-medium">Seleccionar Archivo</button>
                     </div>
 
+                    <!-- SIMULADOR COBRABILIDAD -->
                     <div class="bg-[#151e2e] border border-gray-800 rounded-xl p-5 space-y-4">
                         <h3 class="text-xs font-bold text-blue-400 uppercase tracking-wider flex items-center gap-2">
                             <i data-lucide="sliders" class="w-4 h-4"></i> Simulador de Cobrabilidad (% Dinero en Calle)
@@ -124,48 +114,24 @@
                 </div>
             </div>
 
-            <!-- EDICIÓN DE SALDOS INICIALES REQUERIDOS -->
+            <!-- EDICIÓN DE SALDOS INICIALES -->
             <div class="bg-[#111827] border border-gray-800 rounded-2xl p-6 space-y-4">
                 <div class="flex items-center justify-between border-b border-gray-800 pb-3">
                     <h3 class="text-sm font-bold text-white flex items-center gap-2">
                         <i data-lucide="wallet" class="w-4 h-4 text-emerald-400"></i> Edición Manual de Saldos Iniciales (Bancos & Cajas)
                     </h3>
-                    <button onclick="recalcularTodo()" class="bg-blue-600 hover:bg-blue-500 text-xs text-white px-3 py-1.5 rounded-lg font-semibold shadow-md transition-all">
-                        Recalcular Saldos
-                    </button>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-xs">
-                    <div class="bg-[#151e2e] p-3 rounded-xl border border-gray-800 space-y-1.5">
-                        <label class="text-gray-400 font-medium">BNA (Banco Nación) ($)</label>
-                        <input type="number" id="saldo-bna" value="12000000" onchange="recalcularTodo()" class="w-full bg-[#0b0f19] border border-gray-700 rounded-lg p-2 text-white font-semibold">
-                    </div>
-                    <div class="bg-[#151e2e] p-3 rounded-xl border border-gray-800 space-y-1.5">
-                        <label class="text-gray-400 font-medium">Efectivo Capacitación ($)</label>
-                        <input type="number" id="saldo-efectivo-cap" value="15000000" onchange="recalcularTodo()" class="w-full bg-[#0b0f19] border border-gray-700 rounded-lg p-2 text-white font-semibold">
-                    </div>
-                    <div class="bg-[#151e2e] p-3 rounded-xl border border-gray-800 space-y-1.5">
-                        <label class="text-gray-400 font-medium">Efectivo Ganadera ($)</label>
-                        <input type="number" id="saldo-efectivo-gan" value="25000000" onchange="recalcularTodo()" class="w-full bg-[#0b0f19] border border-gray-700 rounded-lg p-2 text-white font-semibold">
-                    </div>
-                    <div class="bg-[#151e2e] p-3 rounded-xl border border-gray-800 space-y-1.5">
-                        <label class="text-gray-400 font-medium">Caja de Ahorro BPN ($)</label>
-                        <input type="number" id="saldo-bpn-ahorro" value="98000000" onchange="recalcularTodo()" class="w-full bg-[#0b0f19] border border-gray-700 rounded-lg p-2 text-white font-semibold">
-                    </div>
-                    <div class="bg-[#151e2e] p-3 rounded-xl border border-gray-800 space-y-1.5">
-                        <label class="text-gray-400 font-medium">Cuenta Ferrandi ($)</label>
-                        <input type="number" id="saldo-ferrandi" value="24000000" onchange="recalcularTodo()" class="w-full bg-[#0b0f19] border border-gray-700 rounded-lg p-2 text-white font-semibold">
-                    </div>
-                    <div class="bg-[#151e2e] p-3 rounded-xl border border-gray-800 space-y-1.5">
-                        <label class="text-gray-400 font-medium">Galicia FIMA / Cta Cte ($)</label>
-                        <input type="number" id="saldo-galicia" value="80000000" onchange="recalcularTodo()" class="w-full bg-[#0b0f19] border border-gray-700 rounded-lg p-2 text-white font-semibold">
-                    </div>
-                    <div class="bg-[#151e2e] p-3 rounded-xl border border-gray-800 space-y-1.5">
-                        <label class="text-gray-400 font-medium">Mercado Pago / Otras Cajas ($)</label>
-                        <input type="number" id="saldo-mp" value="13817086" onchange="recalcularTodo()" class="w-full bg-[#0b0f19] border border-gray-700 rounded-lg p-2 text-white font-semibold">
-                    </div>
+                    <div class="bg-[#151e2e] p-3 rounded-xl border border-gray-800 space-y-1.5"><label class="text-gray-400">BNA ($)</label><input type="number" id="saldo-bna" value="12000000" onchange="recalcularCashflow()" class="w-full bg-[#0b0f19] border border-gray-700 rounded-lg p-2 text-white font-semibold"></div>
+                    <div class="bg-[#151e2e] p-3 rounded-xl border border-gray-800 space-y-1.5"><label class="text-gray-400">Efec. Cap. ($)</label><input type="number" id="saldo-efectivo-cap" value="15000000" onchange="recalcularCashflow()" class="w-full bg-[#0b0f19] border border-gray-700 rounded-lg p-2 text-white font-semibold"></div>
+                    <div class="bg-[#151e2e] p-3 rounded-xl border border-gray-800 space-y-1.5"><label class="text-gray-400">Efec. Gan. ($)</label><input type="number" id="saldo-efectivo-gan" value="25000000" onchange="recalcularCashflow()" class="w-full bg-[#0b0f19] border border-gray-700 rounded-lg p-2 text-white font-semibold"></div>
+                    <div class="bg-[#151e2e] p-3 rounded-xl border border-gray-800 space-y-1.5"><label class="text-gray-400">BPN Ahorro ($)</label><input type="number" id="saldo-bpn-ahorro" value="98000000" onchange="recalcularCashflow()" class="w-full bg-[#0b0f19] border border-gray-700 rounded-lg p-2 text-white font-semibold"></div>
+                    <div class="bg-[#151e2e] p-3 rounded-xl border border-gray-800 space-y-1.5"><label class="text-gray-400">Ferrandi ($)</label><input type="number" id="saldo-ferrandi" value="24000000" onchange="recalcularCashflow()" class="w-full bg-[#0b0f19] border border-gray-700 rounded-lg p-2 text-white font-semibold"></div>
+                    <div class="bg-[#151e2e] p-3 rounded-xl border border-gray-800 space-y-1.5"><label class="text-gray-400">Galicia ($)</label><input type="number" id="saldo-galicia" value="80000000" onchange="recalcularCashflow()" class="w-full bg-[#0b0f19] border border-gray-700 rounded-lg p-2 text-white font-semibold"></div>
+                    <div class="bg-[#151e2e] p-3 rounded-xl border border-gray-800 space-y-1.5"><label class="text-gray-400">Mercado Pago ($)</label><input type="number" id="saldo-mp" value="13817086" onchange="recalcularCashflow()" class="w-full bg-[#0b0f19] border border-gray-700 rounded-lg p-2 text-white font-semibold"></div>
                     <div class="bg-[#1e293b] p-3 rounded-xl border border-blue-500/30 space-y-1.5 flex flex-col justify-center">
-                        <span class="text-gray-400 font-medium">Total Disponibilidad Inicial</span>
+                        <span class="text-gray-400 font-medium">Total Disponibilidad</span>
                         <span id="label-sum-disponibilidades" class="text-lg font-black text-emerald-400">$ 267.817.086</span>
                     </div>
                 </div>
@@ -175,218 +141,48 @@
         <!-- PESTAÑA 2: CASH FLOW PROYECTADO & ALERTAS DINÁMICAS -->
         <section id="tab-cashflow" class="hidden space-y-6">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="gradient-card-blue p-5 rounded-2xl shadow-xl space-y-1">
-                    <p class="text-xs font-bold text-blue-100 uppercase tracking-wider">Caja Inicial Disponible</p>
-                    <p id="kpi-caja-ini" class="text-2xl font-black text-white">$ 267.817.086</p>
-                    <p class="text-[11px] text-blue-200">Disponibilidad líquida de arranque</p>
-                </div>
-                <div class="gradient-card-green p-5 rounded-2xl shadow-xl space-y-1">
-                    <p class="text-xs font-bold text-emerald-100 uppercase tracking-wider">Ingresos Proyectados (6 Sem)</p>
-                    <p id="kpi-ingresos" class="text-2xl font-black text-white">$ 1.761.459.314</p>
-                    <p class="text-[11px] text-emerald-200">Ventas + Cheques en cartera</p>
-                </div>
-                <div class="gradient-card-amber p-5 rounded-2xl shadow-xl space-y-1">
-                    <p class="text-xs font-bold text-amber-100 uppercase tracking-wider">Egresos Totales Ajustados</p>
-                    <p id="kpi-egresos" class="text-2xl font-black text-white">$ 2.791.218.564</p>
-                    <p class="text-[11px] text-amber-200">Suma con corrimientos aplicados</p>
-                </div>
-                <div class="gradient-card-red p-5 rounded-2xl shadow-xl space-y-1">
-                    <p class="text-xs font-bold text-red-100 uppercase tracking-wider">⚠️ Déficit Máximo Acumulado</p>
-                    <p id="kpi-deficit" class="text-2xl font-black text-white">-$ 787.759.250</p>
-                    <p class="text-[11px] text-red-200">Recalculado con corrimientos</p>
-                </div>
+                <div class="gradient-card-blue p-5 rounded-2xl shadow-xl space-y-1"><p class="text-xs font-bold text-blue-100 uppercase">Caja Inicial Disponible</p><p id="kpi-caja-ini" class="text-2xl font-black text-white">$ 0</p></div>
+                <div class="gradient-card-green p-5 rounded-2xl shadow-xl space-y-1"><p class="text-xs font-bold text-emerald-100 uppercase">Ingresos Proyectados</p><p id="kpi-ingresos" class="text-2xl font-black text-white">$ 0</p></div>
+                <div class="gradient-card-amber p-5 rounded-2xl shadow-xl space-y-1"><p class="text-xs font-bold text-amber-100 uppercase">Egresos Totales</p><p id="kpi-egresos" class="text-2xl font-black text-white">$ 0</p></div>
+                <div class="gradient-card-red p-5 rounded-2xl shadow-xl space-y-1"><p class="text-xs font-bold text-red-100 uppercase">⚠️ Déficit Máximo</p><p id="kpi-deficit" class="text-2xl font-black text-white">$ 0</p></div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 <div class="lg:col-span-7 bg-[#111827] border border-gray-800 rounded-2xl p-6 space-y-4">
-                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                        <i data-lucide="line-chart" class="w-4 h-4 text-blue-400"></i> Evolución Semanal de Flujo & Saldo Final
-                    </h3>
-                    <div class="h-[340px] w-full">
-                        <canvas id="chartCashflow"></canvas>
-                    </div>
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2"><i data-lucide="line-chart" class="w-4 h-4 text-blue-400"></i> Evolución Semanal</h3>
+                    <div class="h-[340px] w-full"><canvas id="chartCashflow"></canvas></div>
                 </div>
 
                 <div class="lg:col-span-5 bg-[#111827] border border-gray-800 rounded-2xl p-6 space-y-4">
-                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                        <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-400"></i> Cuadro Semanal con Alertas de Iliquidez
-                    </h3>
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2"><i data-lucide="alert-triangle" class="w-4 h-4 text-amber-400"></i> Matriz de Alertas</h3>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-xs border-collapse">
-                            <thead>
-                                <tr class="border-b border-gray-800 text-gray-400 font-semibold">
-                                    <th class="py-2">Semana</th>
-                                    <th class="py-2 text-right">Ingresos</th>
-                                    <th class="py-2 text-right">Egresos</th>
-                                    <th class="py-2 text-right">Saldo Final</th>
-                                    <th class="py-2 text-center">Estado</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tabla-cashflow-body" class="divide-y divide-gray-800 text-gray-300">
-                            </tbody>
+                            <thead><tr class="border-b border-gray-800 text-gray-400 font-semibold"><th class="py-2">Semana</th><th class="py-2 text-right">Ingresos</th><th class="py-2 text-right">Egresos</th><th class="py-2 text-right">Saldo Final</th><th class="py-2 text-center">Estado</th></tr></thead>
+                            <tbody id="tabla-cashflow-body" class="divide-y divide-gray-800 text-gray-300"></tbody>
                         </table>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- PESTAÑA 3: TABLERO DE KPIS (KPI-01 A KPI-08) -->
+        <!-- PESTAÑA 3: TABLERO DE KPIS -->
         <section id="tab-kpis" class="hidden space-y-6">
-            <div class="flex flex-wrap items-center justify-between gap-4 border-b border-gray-800 pb-4">
-                <div>
-                    <h2 class="text-base font-bold text-white flex items-center gap-2">
-                        <i data-lucide="bar-chart-2" class="w-5 h-5 text-blue-500"></i> Tablero Consolidado de KPIs de Tesorería (KPI-01 a KPI-08)
-                    </h2>
-                    <p class="text-xs text-gray-400">Indicadores clave reconstruidos a partir de disponibilidades, cuentas por cobrar, pasivos y ciclo financiero.</p>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-2">
-                    <div class="flex justify-between items-start">
-                        <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30">KPI-01</span>
-                        <span class="text-[10px] text-gray-400">Proyectado / Cajas</span>
-                    </div>
-                    <p class="text-xs font-semibold text-gray-300">Posición de Caja Inicial</p>
-                    <p id="kpi-01-val" class="text-2xl font-black text-white">$ 267.817.086</p>
-                    <p class="text-[11px] text-emerald-400 font-medium">✓ Disponibilidades Líquidas</p>
-                </div>
-
-                <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-2">
-                    <div class="flex justify-between items-start">
-                        <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30">KPI-02</span>
-                        <span class="text-[10px] text-gray-400">Saldos en calle</span>
-                    </div>
-                    <p class="text-xs font-semibold text-gray-300">Total Cuentas por Cobrar</p>
-                    <p id="kpi-02-val" class="text-2xl font-black text-white">$ 1.034.402.318</p>
-                    <p class="text-[11px] text-blue-400 font-medium">Consolidado Cartera Exigible</p>
-                </div>
-
-                <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-2">
-                    <div class="flex justify-between items-start">
-                        <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-red-500/20 text-red-400 border border-red-500/30">KPI-03</span>
-                        <span class="text-[10px] text-gray-400">Saldos en calle</span>
-                    </div>
-                    <p class="text-xs font-semibold text-gray-300">Monto CxC Vencido</p>
-                    <p id="kpi-03-val" class="text-2xl font-black text-red-400">$ 643.173.118</p>
-                    <p class="text-[11px] text-red-400 font-medium">⚠️ Cartera en Riesgo</p>
-                </div>
-
-                <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-2">
-                    <div class="flex justify-between items-start">
-                        <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-red-500/20 text-red-400 border border-red-500/30">KPI-04</span>
-                        <span class="text-[10px] text-gray-400">Calculado (KPI-03/KPI-02)</span>
-                    </div>
-                    <p class="text-xs font-semibold text-gray-300">Porcentaje de Mora</p>
-                    <p id="kpi-04-val" class="text-2xl font-black text-red-400">62,2%</p>
-                    <p class="text-[11px] text-red-400 font-medium">Alerta Roja (>30% Aceptable)</p>
-                </div>
-
-                <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-2">
-                    <div class="flex justify-between items-start">
-                        <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30">KPI-05</span>
-                        <span class="text-[10px] text-gray-400">Calculado</span>
-                    </div>
-                    <p class="text-xs font-semibold text-gray-300">DSO (Días de Cobro)</p>
-                    <p id="kpi-05-val" class="text-2xl font-black text-blue-400">13,8 Días</p>
-                    <p class="text-[11px] text-emerald-400 font-medium">Promedio Teórico</p>
-                </div>
-
-                <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-2">
-                    <div class="flex justify-between items-start">
-                        <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">KPI-06</span>
-                        <span class="text-[10px] text-gray-400">Proyectado / Deuda</span>
-                    </div>
-                    <p class="text-xs font-semibold text-gray-300">Deuda Total Comercial</p>
-                    <p id="kpi-06-val" class="text-2xl font-black text-amber-400">$ 2.809.218.565</p>
-                    <p class="text-[11px] text-amber-300 font-medium">Facturas Compra + Hacienda</p>
-                </div>
-
-                <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-2">
-                    <div class="flex justify-between items-start">
-                        <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">KPI-07</span>
-                        <span class="text-[10px] text-gray-400">Calculado</span>
-                    </div>
-                    <p class="text-xs font-semibold text-gray-300">DPO (Días de Pago)</p>
-                    <p id="kpi-07-val" class="text-2xl font-black text-amber-400">62,5 Días</p>
-                    <p class="text-[11px] text-gray-400 font-medium">Financiación Proveedores</p>
-                </div>
-
-                <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-2">
-                    <div class="flex justify-between items-start">
-                        <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">KPI-08</span>
-                        <span class="text-[10px] text-gray-400">Calculado (DSO - DPO)</span>
-                    </div>
-                    <p class="text-xs font-semibold text-gray-300">Ciclo Financiero Puro</p>
-                    <p id="kpi-08-val" class="text-2xl font-black text-emerald-400">-48,7 Días</p>
-                    <p class="text-[11px] text-emerald-400 font-medium">Financiación Proveedores</p>
-                </div>
+             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-2"><p class="text-[10px] text-gray-400">KPI-01 Posición Inicial</p><p id="kpi-01-val" class="text-2xl font-black text-white">$ 0</p></div>
+                <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-2"><p class="text-[10px] text-gray-400">KPI-02 Cuentas x Cobrar</p><p id="kpi-02-val" class="text-2xl font-black text-white">$ 0</p></div>
+                <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-2"><p class="text-[10px] text-gray-400">KPI-06 Deuda Comercial</p><p id="kpi-06-val" class="text-2xl font-black text-amber-400">$ 0</p></div>
+                <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-2"><p class="text-[10px] text-gray-400">KPI-05 Días Cobro Promedio</p><p id="kpi-05-val" class="text-2xl font-black text-blue-400">42.0 Días</p></div>
             </div>
         </section>
 
-        <!-- PESTAÑA 4: DETALLE & SIMULADOR DE REPROGRAMACIÓN (RENOVADA) -->
+        <!-- PESTAÑA 4: FACTURAS & REPROGRAMACIÓN -->
         <section id="tab-facturas" class="hidden space-y-6">
-            <div class="flex flex-wrap items-center justify-between gap-4 border-b border-gray-800 pb-4">
-                <div>
-                    <h2 class="text-base font-bold text-white flex items-center gap-2">
-                        <i data-lucide="receipt" class="w-5 h-5 text-amber-400"></i> Detalle de Facturas & Reprogramación de Vencimientos ⚡
-                    </h2>
-                    <p class="text-xs text-gray-400">Cambie la semana de pago de cualquier comprobante para diferir egresos y nivelar la caja en tiempo real.</p>
-                </div>
-            </div>
-
-            <!-- RESUMEN DE IMPACTO DE CORRIMIENTO -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-1">
-                    <span class="text-xs font-bold text-gray-400 uppercase">Comprobantes Postergados</span>
-                    <p id="label-count-deferred" class="text-2xl font-black text-amber-400">0 Facturas</p>
-                    <p class="text-[11px] text-amber-300/80">Con aviso pendiente a proveedor</p>
-                </div>
-                <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-1">
-                    <span class="text-xs font-bold text-gray-400 uppercase">Monto Total Diferido</span>
-                    <p id="label-monto-deferred" class="text-2xl font-black text-emerald-400">$ 0</p>
-                    <p class="text-[11px] text-emerald-300/80">Alivio liberado de la semana original</p>
-                </div>
-                <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-1 flex flex-col justify-center">
-                    <button onclick="resetearCorrimientos()" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 text-xs text-gray-300 font-semibold py-2 px-3 rounded-xl transition-all flex items-center justify-center gap-2">
-                        <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Restablecer Vencimientos Originales
-                    </button>
-                </div>
+                <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-1"><span class="text-xs font-bold text-gray-400 uppercase">Comprobantes Postergados</span><p id="label-count-deferred" class="text-2xl font-black text-amber-400">0 Facturas</p></div>
+                <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-1"><span class="text-xs font-bold text-gray-400 uppercase">Monto Total Diferido</span><p id="label-monto-deferred" class="text-2xl font-black text-emerald-400">$ 0</p></div>
+                <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-1 flex flex-col justify-center"><button onclick="resetearCorrimientos()" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 text-xs text-gray-300 font-semibold py-2 px-3 rounded-xl transition-all">Restablecer Vencimientos Originales</button></div>
             </div>
 
-            <!-- FILTROS -->
-            <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
-                <div>
-                    <label class="text-gray-400 font-semibold mb-1 block">Filtrar por Semana Original</label>
-                    <select id="filter-semana" onchange="renderizarTablaFacturas()" class="w-full bg-[#151e2e] border border-gray-700 rounded-lg p-2 text-white font-medium focus:border-blue-500 outline-none">
-                        <option value="TODAS">Todas las Semanas</option>
-                        <option value="2026-08-09">Sem 1 (09/08/2026)</option>
-                        <option value="2026-08-16">Sem 2 (16/08/2026)</option>
-                        <option value="2026-08-23">Sem 3 (23/08/2026)</option>
-                        <option value="2026-08-30">Sem 4 (30/08/2026)</option>
-                        <option value="2026-09-06">Sem 5 (06/09/2026)</option>
-                        <option value="2026-09-13">Sem 6 (13/09/2026)</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="text-gray-400 font-semibold mb-1 block">Filtrar por Observaciones / Comisionista</label>
-                    <select id="filter-obs" onchange="renderizarTablaFacturas()" class="w-full bg-[#151e2e] border border-gray-700 rounded-lg p-2 text-white font-medium focus:border-blue-500 outline-none">
-                        <option value="TODOS">Todas las Observaciones</option>
-                        <option value="General">Sin Observación Específica</option>
-                        <option value="Leandro Monedero">Leandro Monedero</option>
-                        <option value="Alfredo Adem">Alfredo Adem</option>
-                        <option value="Sebastian Valacco">Sebastian Valacco</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="text-gray-400 font-semibold mb-1 block">Buscar Proveedor / Tercero</label>
-                    <input type="text" id="filter-search" onkeyup="renderizarTablaFacturas()" placeholder="Ej: Granja, Guerrero, Ñimapu..." class="w-full bg-[#151e2e] border border-gray-700 rounded-lg p-2 text-white placeholder-gray-500 focus:border-blue-500 outline-none">
-                </div>
-            </div>
-
-            <!-- TABLA REPROGRAMABLE -->
             <div class="bg-[#111827] border border-gray-800 rounded-2xl overflow-hidden p-4 space-y-3">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs border-collapse">
@@ -396,7 +192,7 @@
                                 <th class="p-3">Proveedor / Tercero</th>
                                 <th class="p-3">Sem. Original</th>
                                 <th class="p-3">Acción de Pago / Reprogramación</th>
-                                <th class="p-3">Estado / Alerta Proveedor</th>
+                                <th class="p-3">Estado / Alerta</th>
                                 <th class="p-3 text-right">Importe ($)</th>
                             </tr>
                         </thead>
@@ -409,33 +205,18 @@
 
     </main>
 
-    <!-- SCRIPTS JAVASCRIPT CON LÓGICA DE DÉFICIT DINÁMICO -->
+    <!-- SCRIPTS CORE: LECTURA DE EXCEL Y PROCESAMIENTO -->
     <script>
         lucide.createIcons();
-
-        // Base semanal estática de ingresos y egresos
-        let baseIngresos = [912740358.83, 205454506.91, 44564663.83, 580672876.92, 18026908.07, 0.0];
-        let baseEgresos = [-886947820.80, -526479707.37, -437525531.20, -426248658.41, -304707070.61, -209309776.29];
-        let semanasFechas = ["2026-08-09", "2026-08-16", "2026-08-23", "2026-08-30", "2026-09-06", "2026-09-13"];
-        let semanasNombres = ["Sem 1 (09/08)", "Sem 2 (16/08)", "Sem 3 (23/08)", "Sem 4 (30/08)", "Sem 5 (06/09)", "Sem 6 (13/09)"];
-
-        // Comprobantes detallados con soporte para asignación de fecha ajustada
-        let facturasDetalle = [
-            { id: 1, doc: "(FC) Factura de Compra - SR", tercero: "ESTABLECIMIENTO ÑIMAPU S.A.", fechaOrig: "2026-08-09", fechaAjustada: "2026-08-09", obs: "General", importe: 38898592.00 },
-            { id: 2, doc: "(FC) Factura de Compra - SR", tercero: "SEGATORI ANIBAL ORLANDO", fechaOrig: "2026-08-09", fechaAjustada: "2026-08-09", obs: "Leandro Monedero", importe: 26520000.00 },
-            { id: 3, doc: "(FC) Factura de Compra - SR", tercero: "GRANJA EL AMANECER SRL", fechaOrig: "2026-08-09", fechaAjustada: "2026-08-09", obs: "General", importe: 1660771.00 },
-            { id: 4, doc: "(FC) Factura de Compra - SR", tercero: "GRANJA EL AMANECER SRL", fechaOrig: "2026-08-09", fechaAjustada: "2026-08-09", obs: "General", importe: 1618107.09 },
-            { id: 5, doc: "(FC) Factura de Compra - SR", tercero: "GUERRERO HUGO NORBERTO", fechaOrig: "2026-08-09", fechaAjustada: "2026-08-09", obs: "Alfredo Adem", importe: 600000.00 },
-            { id: 6, doc: "Cuenta de Compra Hacienda", tercero: "PRODUCTORES DE HACIENDA", fechaOrig: "2026-08-09", fechaAjustada: "2026-08-09", obs: "Sebastian Valacco", importe: 383556427.60 },
-            { id: 7, doc: "Cheques Propios Emitidos", tercero: "OTERMIN Y MASSINI SAS", fechaOrig: "2026-08-09", fechaAjustada: "2026-08-09", obs: "General", importe: 61341871.29 },
-            { id: 8, doc: "(FC) Factura de Compra - SR", tercero: "GRANJA EL AMANECER SRL", fechaOrig: "2026-08-16", fechaAjustada: "2026-08-16", obs: "General", importe: 360002311.27 },
-            { id: 9, doc: "(FC) Factura de Compra - SR", tercero: "SCHINDLER MARTIN", fechaOrig: "2026-08-23", fechaAjustada: "2026-08-23", obs: "Sebastian Valacco", importe: 344952388.09 },
-            { id: 10, doc: "(FC) Factura de Compra - SR", tercero: "BLD AGRO S.A.", fechaOrig: "2026-08-30", fechaAjustada: "2026-08-30", obs: "Leandro Monedero", importe: 284698135.45 },
-            { id: 11, doc: "Cheques Propios Emitidos", tercero: "OTERMIN Y MASSINI SAS", fechaOrig: "2026-09-06", fechaAjustada: "2026-09-06", obs: "General", importe: 48308988.23 },
-            { id: 12, doc: "Prestamos Bancarios", tercero: "PRESTAMO HIPOTECARIO BPN", fechaOrig: "2026-09-13", fechaAjustada: "2026-09-13", obs: "General", importe: 5657976.58 }
-        ];
-
         let chartCashflow = null;
+
+        // Estructuras de Datos Maestras
+        let facturasDetalle = []; // Contendrá las facturas de Egreso reales del Excel
+        let baseIngresosSemanales = {}; // Diccionario con Ingresos sumados por semana
+        let semanasOrdenadas = []; // ["2026-08-09", "2026-08-16", ...]
+        
+        let totalIngresosPuros = 0;
+        let totalEgresosPuros = 0;
 
         function cambiarPestana(tabId) {
             document.querySelectorAll('main > section').forEach(el => el.classList.add('hidden'));
@@ -447,41 +228,110 @@
             });
             document.getElementById('btn-' + tabId).classList.add('tab-active');
             
-            recalcularTodo();
-            if (tabId === 'tab-facturas') {
-                renderizarTablaFacturas();
+            if (facturasDetalle.length > 0) {
+                recalcularCashflow();
+                if (tabId === 'tab-facturas') renderizarTablaFacturas();
             }
         }
 
-        function actualizarSliders() {
-            let s1 = parseInt(document.getElementById('slider-pct-1').value);
-            let s2 = parseInt(document.getElementById('slider-pct-2').value);
-            let s3 = parseInt(document.getElementById('slider-pct-3').value);
+        // ==========================================
+        // LECTURA REAL DEL ARCHIVO EXCEL (SheetJS)
+        // ==========================================
+        function leerArchivoExcel(event) {
+            let file = event.target.files[0];
+            if (!file) return;
 
-            document.getElementById('label-pct-1').innerText = s1 + "%";
-            document.getElementById('label-pct-2').innerText = s2 + "%";
-            document.getElementById('label-pct-3').innerText = s3 + "%";
+            document.getElementById('label-estado-archivo').innerText = "Procesando " + file.name + "...";
 
-            recalcularTodo();
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                let data = new Uint8Array(e.target.result);
+                let workbook = XLSX.read(data, {type: 'array', cellDates: true});
+                
+                // Asegurarnos que existe 'hoja1'
+                if (!workbook.Sheets['hoja1']) {
+                    alert("Error: El Excel no contiene una pestaña llamada 'hoja1'.");
+                    return;
+                }
+
+                let jsonHoja1 = XLSX.utils.sheet_to_json(workbook.Sheets['hoja1']);
+                procesarDatos(jsonHoja1);
+                
+                document.getElementById('label-estado-archivo').innerText = "✓ Excel cargado (" + facturasDetalle.length + " facturas detectadas).";
+                document.getElementById('label-estado-archivo').classList.add("text-emerald-400");
+                
+                alert("✓ Archivo procesado correctamente. Revisa el flujo de fondos.");
+                cambiarPestana('tab-cashflow');
+            };
+            reader.readAsArrayBuffer(file);
         }
 
-        // CAMBIO DINÁMICO DE VENCIMIENTO DE FACTURA
-        function cambiarVencimientoFactura(facturaId, nuevaFecha) {
-            let item = facturasDetalle.find(f => f.id === facturaId);
-            if (item) {
-                item.fechaAjustada = nuevaFecha;
-                recalcularTodo();
-                renderizarTablaFacturas();
-            }
+        // ==========================================
+        // LIMPIEZA Y AGRUPAMIENTO DE DATOS
+        // ==========================================
+        function procesarDatos(rawData) {
+            facturasDetalle = [];
+            baseIngresosSemanales = {};
+            let setSemanas = new Set();
+
+            totalIngresosPuros = 0;
+            totalEgresosPuros = 0;
+
+            rawData.forEach((row, idx) => {
+                if (row.Origen === "Movimiento") {
+                    
+                    // Formatear Fecha
+                    let f = row.Periodo;
+                    let strFecha = "";
+                    if (f instanceof Date) {
+                        strFecha = f.toISOString().split('T')[0]; // "2026-08-09"
+                    } else {
+                        strFecha = String(f).trim(); // Fallback si viene como texto
+                    }
+                    
+                    if (strFecha) setSemanas.add(strFecha);
+                    
+                    let importe = parseFloat(row.Importe) || 0;
+
+                    if (row.Tipo === "Ingreso") {
+                        if (!baseIngresosSemanales[strFecha]) baseIngresosSemanales[strFecha] = 0;
+                        baseIngresosSemanales[strFecha] += importe;
+                        totalIngresosPuros += importe;
+                    } 
+                    else if (row.Tipo === "Egreso" && importe !== 0) {
+                        totalEgresosPuros += Math.abs(importe);
+                        // Guardar comprobante para tabla reprogramable
+                        facturasDetalle.push({
+                            id: idx,
+                            doc: row["Tipo de Doc."] || "Egreso",
+                            tercero: row.Tercero || "Sin Especificar",
+                            fechaOrig: strFecha,
+                            fechaAjustada: strFecha,
+                            obs: row.Comisionista || "General",
+                            importe: importe // Negativo
+                        });
+                    }
+                }
+            });
+
+            // Ordenar semanas cronológicamente
+            semanasOrdenadas = Array.from(setSemanas).sort();
+            
+            // Actualizar KPIs de totales base
+            document.getElementById('kpi-ingresos').innerText = "$ " + formatearMoneda(totalIngresosPuros);
+            document.getElementById('kpi-02-val').innerText = "$ " + formatearMoneda(totalIngresosPuros);
+            document.getElementById('kpi-06-val').innerText = "$ " + formatearMoneda(totalEgresosPuros);
+            
+            recalcularCashflow();
         }
 
-        function resetearCorrimientos() {
-            facturasDetalle.forEach(f => f.fechaAjustada = f.fechaOrig);
-            recalcularTodo();
-            renderizarTablaFacturas();
-        }
+        // ==========================================
+        // CÁLCULO DINÁMICO DEL FLUJO Y REPROGRAMACIONES
+        // ==========================================
+        function recalcularCashflow() {
+            if (semanasOrdenadas.length === 0) return;
 
-        function recalcularTodo() {
+            // 1. Obtener saldos iniciales del formulario
             let bna = parseFloat(document.getElementById('saldo-bna').value) || 0;
             let efecCap = parseFloat(document.getElementById('saldo-efectivo-cap').value) || 0;
             let efecGan = parseFloat(document.getElementById('saldo-efectivo-gan').value) || 0;
@@ -492,89 +342,79 @@
             
             let saldoInicialTotal = bna + efecCap + efecGan + bpnAhorro + ferrandi + galicia + mp;
 
-            let labelSum = document.getElementById('label-sum-disponibilidades');
-            if (labelSum) labelSum.innerText = "$ " + formatearMoneda(saldoInicialTotal);
+            document.getElementById('label-sum-disponibilidades').innerText = "$ " + formatearMoneda(saldoInicialTotal);
+            document.getElementById('kpi-caja-ini').innerText = "$ " + formatearMoneda(saldoInicialTotal);
+            document.getElementById('kpi-01-val').innerText = "$ " + formatearMoneda(saldoInicialTotal);
 
-            // Copiar egresos base para aplicar deltas de corrimiento
-            let egresosAjustados = [...baseEgresos];
-
-            facturasDetalle.forEach(item => {
-                if (item.fechaOrig !== item.fechaAjustada) {
-                    let idxOrig = semanasFechas.indexOf(item.fechaOrig);
-                    let idxDest = semanasFechas.indexOf(item.fechaAjustada);
-
-                    if (idxOrig !== -1) egresosAjustados[idxOrig] += item.importe; // Aliviar origen
-                    if (idxDest !== -1) egresosAjustados[idxDest] -= item.importe; // Cargar destino
-                }
+            // 2. Diccionarios de impacto
+            let ingSimulados = {};
+            let egrSimulados = {};
+            
+            semanasOrdenadas.forEach(s => {
+                ingSimulados[s] = baseIngresosSemanales[s] || 0; // Se podría aplicar el slider % acá
+                egrSimulados[s] = 0;
             });
 
+            // 3. Re-asignar Egresos a sus fechas APLICANDO reprogramaciones
+            facturasDetalle.forEach(f => {
+                let sAjust = f.fechaAjustada;
+                if (!egrSimulados[sAjust]) egrSimulados[sAjust] = 0;
+                egrSimulados[sAjust] += f.importe; // se suma el negativo
+            });
+
+            // 4. Construir serie de saldos acumulados
             let saldoAcumulado = saldoInicialTotal;
             let saldoSeries = [];
             let deficitMax = 0;
-
             let tbody = document.getElementById('tabla-cashflow-body');
-            if (tbody) tbody.innerHTML = '';
+            tbody.innerHTML = '';
 
-            semanasNombres.forEach((semNom, idx) => {
-                let ing = baseIngresos[idx];
-                let egr = egresosAjustados[idx];
+            let egrTotalesAjustados = 0;
+
+            semanasOrdenadas.forEach((sem, idx) => {
+                let ing = ingSimulados[sem];
+                let egr = egrSimulados[sem] || 0;
+                
+                egrTotalesAjustados += Math.abs(egr);
+                
                 let flujoNeto = ing + egr;
                 saldoAcumulado += flujoNeto;
                 saldoSeries.push(saldoAcumulado);
 
                 if (saldoAcumulado < deficitMax) deficitMax = saldoAcumulado;
 
-                let badgeClass = "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+                let badgeClass = "bg-emerald-500/20 text-emerald-400";
                 let estadoText = "SUPERÁVIT";
 
                 if (saldoAcumulado < -200000000) {
-                    badgeClass = "bg-red-900/50 text-red-300 border border-red-700";
+                    badgeClass = "bg-red-900/50 text-red-300";
                     estadoText = "CRÍTICO";
                 } else if (saldoAcumulado < 0) {
-                    badgeClass = "bg-red-500/20 text-red-400 border border-red-500/30";
+                    badgeClass = "bg-red-500/20 text-red-400";
                     estadoText = "DÉFICIT";
                 }
 
-                if (tbody) {
-                    tbody.innerHTML += `
-                        <tr class="${saldoAcumulado < 0 ? 'bg-red-950/20' : ''}">
-                            <td class="py-2.5 font-semibold text-white">${semNom}</td>
-                            <td class="py-2.5 text-right text-emerald-400 font-medium">$ ${formatearMoneda(ing)}</td>
-                            <td class="py-2.5 text-right text-red-400 font-medium">-$ ${formatearMoneda(Math.abs(egr))}</td>
-                            <td class="py-2.5 text-right font-bold ${saldoAcumulado < 0 ? 'text-red-400' : 'text-white'}">$ ${formatearMoneda(saldoAcumulado)}</td>
-                            <td class="py-2.5 text-center">
-                                <span class="px-2 py-0.5 text-[10px] font-bold rounded-full ${badgeClass}">${estadoText}</span>
-                            </td>
-                        </tr>
-                    `;
-                }
+                tbody.innerHTML += `
+                    <tr class="${saldoAcumulado < 0 ? 'bg-red-950/20' : ''}">
+                        <td class="py-2.5 font-semibold text-white">Sem ${idx+1} (${sem})</td>
+                        <td class="py-2.5 text-right text-emerald-400 font-medium">$ ${formatearMoneda(ing)}</td>
+                        <td class="py-2.5 text-right text-red-400 font-medium">-$ ${formatearMoneda(Math.abs(egr))}</td>
+                        <td class="py-2.5 text-right font-bold ${saldoAcumulado < 0 ? 'text-red-400' : 'text-white'}">$ ${formatearMoneda(saldoAcumulado)}</td>
+                        <td class="py-2.5 text-center"><span class="px-2 py-0.5 text-[10px] font-bold rounded-full ${badgeClass}">${estadoText}</span></td>
+                    </tr>
+                `;
             });
 
-            let kpiCajaIni = document.getElementById('kpi-caja-ini');
-            let kpiDeficit = document.getElementById('kpi-deficit');
-            let kpiEgresos = document.getElementById('kpi-egresos');
-            let kpi01 = document.getElementById('kpi-01-val');
+            document.getElementById('kpi-deficit').innerText = "$ " + formatearMoneda(deficitMax);
+            document.getElementById('kpi-egresos').innerText = "$ " + formatearMoneda(egrTotalesAjustados);
 
-            let egresosTotalesAbs = absSum(egresosAjustados);
-
-            if (kpiCajaIni) kpiCajaIni.innerText = "$ " + formatearMoneda(saldoInicialTotal);
-            if (kpiDeficit) kpiDeficit.innerText = "$ " + formatearMoneda(deficitMax);
-            if (kpiEgresos) kpiEgresos.innerText = "$ " + formatearMoneda(egresosTotalesAbs);
-            if (kpi01) kpi01.innerText = "$ " + formatearMoneda(saldoInicialTotal);
-
-            actualizarGrafico(saldoSeries, egresosAjustados);
+            actualizarGrafico(saldoSeries, ingSimulados, egrSimulados);
         }
 
-        function absSum(arr) {
-            return arr.reduce((acc, val) => acc + Math.abs(val), 0);
-        }
-
-        // TABLA REPROGRAMABLE CON CONTROLES INTERACTIVOS
+        // ==========================================
+        // RENDER DE TABLA DE FACTURAS (SOLAPA 4)
+        // ==========================================
         function renderizarTablaFacturas() {
-            let semSel = document.getElementById('filter-semana').value;
-            let obsSel = document.getElementById('filter-obs').value;
-            let searchSel = document.getElementById('filter-search').value.toLowerCase();
-
             let tbody = document.getElementById('tabla-facturas-body');
             if (!tbody) return;
             tbody.innerHTML = '';
@@ -588,60 +428,75 @@
                     deferredCount++;
                     deferredMonto += item.importe;
                 }
-
-                let matchSem = (semSel === "TODAS" || item.fechaOrig === semSel);
-                let matchObs = (obsSel === "TODOS" || item.obs === obsSel);
-                let matchSearch = item.tercero.toLowerCase().includes(searchSel) || item.doc.toLowerCase().includes(searchSel);
-
-                if (matchSem && matchObs && matchSearch) {
                     
-                    let optionsHTML = semanasFechas.map((f, i) => {
-                        let selected = (item.fechaAjustada === f) ? 'selected' : '';
-                        return `<option value="${f}" ${selected}>Pagar en ${semanasNombres[i]}</option>`;
-                    }).join('');
+                let optionsHTML = semanasOrdenadas.map((f, i) => {
+                    let selected = (item.fechaAjustada === f) ? 'selected' : '';
+                    return `<option value="${f}" ${selected}>Pagar en Sem ${i+1} (${f})</option>`;
+                }).join('');
 
-                    let rowClass = isDeferred ? 'bg-amber-950/20 border-l-4 border-l-amber-500' : 'hover:bg-[#151e2e]';
-                    let badgeStatus = isDeferred 
-                        ? `<span class="px-2 py-1 text-[10px] font-bold rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center gap-1 w-fit"><i data-lucide="alert-triangle" class="w-3 h-3"></i> ⚠️ AVISAR PROVEEDOR</span>`
-                        : `<span class="px-2 py-1 text-[10px] font-bold rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1 w-fit"><i data-lucide="check-circle" class="w-3 h-3"></i> ✓ Programado en Término</span>`;
+                let rowClass = isDeferred ? 'bg-amber-950/20' : 'hover:bg-[#151e2e]';
+                let badgeStatus = isDeferred 
+                    ? `<span class="px-2 py-1 text-[10px] font-bold rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center gap-1 w-fit"><i data-lucide="alert-triangle" class="w-3 h-3"></i> ⚠️ AVISAR PROVEEDOR</span>`
+                    : `<span class="px-2 py-1 text-[10px] font-bold rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1 w-fit"><i data-lucide="check-circle" class="w-3 h-3"></i> ✓ Programado</span>`;
 
-                    tbody.innerHTML += `
-                        <tr class="${rowClass} transition-all">
-                            <td class="p-3 font-semibold text-white">${item.doc}</td>
-                            <td class="p-3 text-gray-200">${item.tercero}</td>
-                            <td class="p-3 text-gray-400 font-medium">${item.fechaOrig}</td>
-                            <td class="p-3">
-                                <select onchange="cambiarVencimientoFactura(${item.id}, this.value)" class="bg-[#151e2e] border border-blue-500/50 rounded-lg p-1.5 text-xs text-blue-300 font-semibold focus:outline-none">
-                                    ${optionsHTML}
-                                </select>
-                            </td>
-                            <td class="p-3">${badgeStatus}</td>
-                            <td class="p-3 text-right font-bold text-red-400">-$ ${formatearMoneda(item.importe)}</td>
-                        </tr>
-                    `;
-                }
+                tbody.innerHTML += `
+                    <tr class="${rowClass} transition-all">
+                        <td class="p-3 font-semibold text-white">${item.doc}</td>
+                        <td class="p-3 text-gray-200">${item.tercero}</td>
+                        <td class="p-3 text-gray-400 font-medium">${item.fechaOrig}</td>
+                        <td class="p-3">
+                            <select onchange="cambiarVencimientoFactura(${item.id}, this.value)" class="bg-[#151e2e] border border-blue-500/50 rounded-lg p-1.5 text-xs text-blue-300 font-semibold focus:outline-none">
+                                ${optionsHTML}
+                            </select>
+                        </td>
+                        <td class="p-3">${badgeStatus}</td>
+                        <td class="p-3 text-right font-bold text-red-400">-$ ${formatearMoneda(Math.abs(item.importe))}</td>
+                    </tr>
+                `;
             });
 
             lucide.createIcons();
+            document.getElementById('label-count-deferred').innerText = deferredCount + " Facturas";
+            document.getElementById('label-monto-deferred').innerText = "$ " + formatearMoneda(Math.abs(deferredMonto));
+        }
 
-            let lblCount = document.getElementById('label-count-deferred');
-            let lblMonto = document.getElementById('label-monto-deferred');
+        function cambiarVencimientoFactura(facturaId, nuevaFecha) {
+            let item = facturasDetalle.find(f => f.id === facturaId);
+            if (item) {
+                item.fechaAjustada = nuevaFecha;
+                recalcularCashflow();
+                renderizarTablaFacturas();
+            }
+        }
 
-            if (lblCount) lblCount.innerText = deferredCount + " Facturas";
-            if (lblMonto) lblMonto.innerText = "$ " + formatearMoneda(deferredMonto);
+        function resetearCorrimientos() {
+            facturasDetalle.forEach(f => f.fechaAjustada = f.fechaOrig);
+            recalcularCashflow();
+            renderizarTablaFacturas();
         }
 
         function formatearMoneda(valor) {
             return new Intl.NumberFormat('es-AR', { maximumFractionDigits: 0 }).format(valor);
         }
 
-        function actualizarGrafico(saldoSeries, egresosAjustados) {
+        function actualizarSliders() {
+            let s1 = parseInt(document.getElementById('slider-pct-1').value);
+            let s2 = parseInt(document.getElementById('slider-pct-2').value);
+            let s3 = parseInt(document.getElementById('slider-pct-3').value);
+            document.getElementById('label-pct-1').innerText = s1 + "%";
+            document.getElementById('label-pct-2').innerText = s2 + "%";
+            document.getElementById('label-pct-3').innerText = s3 + "%";
+            // Lógica de slider se implementará en la lectura de ingresos
+        }
+
+        function actualizarGrafico(saldoSeries, dictIngresos, dictEgresos) {
             let canvas = document.getElementById('chartCashflow');
             if (!canvas) return;
             let ctx = canvas.getContext('2d');
             
-            let ingresosData = baseIngresos.map(v => v / 1e6);
-            let egresosData = egresosAjustados.map(v => v / 1e6);
+            let semNames = semanasOrdenadas.map((s,i) => "Sem " + (i+1));
+            let ingresosData = semanasOrdenadas.map(s => dictIngresos[s] / 1e6);
+            let egresosData = semanasOrdenadas.map(s => dictEgresos[s] / 1e6);
             let saldoData = saldoSeries.map(s => s / 1e6);
 
             if (chartCashflow) chartCashflow.destroy();
@@ -649,7 +504,7 @@
             chartCashflow = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: semanasNombres,
+                    labels: semNames,
                     datasets: [
                         { label: 'Ingresos ($M)', data: ingresosData, backgroundColor: '#10b981', borderRadius: 6 },
                         { label: 'Egresos ($M)', data: egresosData, backgroundColor: '#f43f5e', borderRadius: 6 },
@@ -657,8 +512,7 @@
                     ]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
+                    responsive: true, maintainAspectRatio: false,
                     plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 } } } },
                     scales: {
                         x: { ticks: { color: '#94a3b8' }, grid: { color: '#1f2937' } },
@@ -667,11 +521,6 @@
                 }
             });
         }
-
-        window.onload = function() {
-            recalcularTodo();
-            renderizarTablaFacturas();
-        };
     </script>
 </body>
 </html>
