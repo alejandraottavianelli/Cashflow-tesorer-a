@@ -34,9 +34,9 @@
             <div>
                 <h1 class="text-lg font-bold text-white flex items-center gap-2">
                     Dirección Financiera & Cash Flow Integral
-                    <span class="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-medium">v4.3 Complete Banks</span>
+                    <span class="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-medium">v4.5 Auto-Mapper</span>
                 </h1>
-                <p class="text-xs text-gray-400">Lectura nativa de Excel, reprogramación de vencimientos y saldos de cajas/bancos completos.</p>
+                <p class="text-xs text-gray-400">Lectura de ERP, cruce automático con Maestro de Observaciones y reprogramación de pagos.</p>
             </div>
         </div>
     </header>
@@ -65,54 +65,59 @@
         <!-- PESTAÑA 1: CARGAR ARCHIVOS & SALDOS INICIALES -->
         <section id="tab-cargar" class="space-y-6">
             <div class="bg-[#111827] border border-gray-800 rounded-2xl p-6 space-y-4">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     
-                    <!-- ZONA DE CARGA DE EXCEL -->
-                    <div class="border-2 border-dashed border-gray-700 hover:border-blue-500 bg-[#151e2e] rounded-xl p-6 text-center space-y-3 transition-all cursor-pointer">
-                        <div class="w-12 h-12 bg-blue-500/10 text-blue-500 rounded-full flex items-center justify-center mx-auto">
-                            <i data-lucide="file-up" class="w-6 h-6"></i>
+                    <!-- ZONA DE CARGA 1: REPORTES SEMANALES ERP -->
+                    <div class="border-2 border-dashed border-gray-700 hover:border-blue-500 bg-[#151e2e] rounded-xl p-5 text-center space-y-3 transition-all cursor-pointer">
+                        <div class="w-10 h-10 bg-blue-500/10 text-blue-500 rounded-full flex items-center justify-center mx-auto">
+                            <i data-lucide="file-up" class="w-5 h-5"></i>
                         </div>
                         <div>
-                            <p class="text-sm font-semibold text-white">Subir Flujo de fondos / Cashflow.xlsx</p>
-                            <p id="label-estado-archivo" class="text-xs text-gray-400">Esperando archivo...</p>
+                            <p class="text-xs font-bold text-white">1. Subir Reporte Semanal ERP</p>
+                            <p id="label-estado-archivo" class="text-[11px] text-gray-400">Ej: Reporte (7).xlsx o Cashflow.xlsx</p>
                         </div>
                         <input type="file" id="excel-input" accept=".xlsx, .xls" class="hidden" onchange="leerArchivoExcel(event)">
-                        <button onclick="document.getElementById('excel-input').click()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-1.5 rounded-lg text-xs font-medium">Seleccionar Archivo</button>
+                        <button onclick="document.getElementById('excel-input').click()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-lg text-xs font-medium">Seleccionar Reporte</button>
+                    </div>
+
+                    <!-- ZONA DE CARGA 2: ARCHIVO MAESTRO DE OBSERVACIONES -->
+                    <div class="border-2 border-dashed border-gray-700 hover:border-purple-500 bg-[#151e2e] rounded-xl p-5 text-center space-y-3 transition-all cursor-pointer">
+                        <div class="w-10 h-10 bg-purple-500/10 text-purple-400 rounded-full flex items-center justify-center mx-auto">
+                            <i data-lucide="book-open" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-white">2. Cargar Maestro de Observaciones</p>
+                            <p id="label-estado-maestro" class="text-[11px] text-gray-400">Cruce Proveedor -> Observación</p>
+                        </div>
+                        <input type="file" id="maestro-input" accept=".xlsx, .xls, .csv" class="hidden" onchange="cargarMaestroObservaciones(event)">
+                        <button onclick="document.getElementById('maestro-input').click()" class="bg-purple-600 hover:bg-purple-500 text-white px-3 py-1.5 rounded-lg text-xs font-medium">Subir Maestro (Opcional)</button>
                     </div>
 
                     <!-- SIMULADOR COBRABILIDAD -->
-                    <div class="bg-[#151e2e] border border-gray-800 rounded-xl p-5 space-y-4">
+                    <div class="bg-[#151e2e] border border-gray-800 rounded-xl p-4 space-y-3">
                         <h3 class="text-xs font-bold text-blue-400 uppercase tracking-wider flex items-center gap-2">
-                            <i data-lucide="sliders" class="w-4 h-4"></i> Simulador de Cobrabilidad (% Dinero en Calle)
+                            <i data-lucide="sliders" class="w-4 h-4"></i> Simulador de Cobrabilidad
                         </h3>
-                        <div class="space-y-3 text-xs">
+                        <div class="space-y-2 text-xs">
                             <div>
                                 <div class="flex justify-between text-gray-300 font-medium mb-1">
-                                    <span>Cobro Semana 1 (Inmediato):</span>
-                                    <span id="label-pct-1" class="text-emerald-400 font-bold">60%</span>
+                                    <span>Cobro Sem 1:</span><span id="label-pct-1" class="text-emerald-400 font-bold">60%</span>
                                 </div>
                                 <input type="range" id="slider-pct-1" min="0" max="100" value="60" oninput="actualizarSliders()" class="w-full accent-emerald-500">
                             </div>
                             <div>
                                 <div class="flex justify-between text-gray-300 font-medium mb-1">
-                                    <span>Cobro Semana 2:</span>
-                                    <span id="label-pct-2" class="text-blue-400 font-bold">25%</span>
+                                    <span>Cobro Sem 2:</span><span id="label-pct-2" class="text-blue-400 font-bold">25%</span>
                                 </div>
                                 <input type="range" id="slider-pct-2" min="0" max="100" value="25" oninput="actualizarSliders()" class="w-full accent-blue-500">
                             </div>
-                            <div>
-                                <div class="flex justify-between text-gray-300 font-medium mb-1">
-                                    <span>Cobro Semana 3+ (Remanente):</span>
-                                    <span id="label-pct-3" class="text-amber-400 font-bold">15%</span>
-                                </div>
-                                <input type="range" id="slider-pct-3" min="0" max="100" value="15" oninput="actualizarSliders()" class="w-full accent-amber-500">
-                            </div>
                         </div>
                     </div>
+
                 </div>
             </div>
 
-            <!-- EDICIÓN DE SALDOS INICIALES (TODAS LAS ENTIDADES REQUERIDAS) -->
+            <!-- EDICIÓN DE SALDOS INICIALES (INCLUYE BANCO BPN) -->
             <div class="bg-[#111827] border border-gray-800 rounded-2xl p-6 space-y-4">
                 <div class="flex items-center justify-between border-b border-gray-800 pb-3">
                     <h3 class="text-sm font-bold text-white flex items-center gap-2">
@@ -128,7 +133,7 @@
                     <div class="bg-[#151e2e] p-3 rounded-xl border border-gray-800 space-y-1.5"><label class="text-gray-400 font-semibold">Cuenta Ferrandi ($)</label><input type="number" id="saldo-ferrandi" value="24000000" onchange="recalcularCashflow()" class="w-full bg-[#0b0f19] border border-gray-700 rounded-lg p-2 text-white font-semibold"></div>
                     <div class="bg-[#151e2e] p-3 rounded-xl border border-gray-800 space-y-1.5"><label class="text-gray-400 font-semibold">Efectivo Capacitación ($)</label><input type="number" id="saldo-efectivo-cap" value="15000000" onchange="recalcularCashflow()" class="w-full bg-[#0b0f19] border border-gray-700 rounded-lg p-2 text-white font-semibold"></div>
                     <div class="bg-[#151e2e] p-3 rounded-xl border border-gray-800 space-y-1.5"><label class="text-gray-400 font-semibold">Efectivo Ganadera ($)</label><input type="number" id="saldo-efectivo-gan" value="25000000" onchange="recalcularCashflow()" class="w-full bg-[#0b0f19] border border-gray-700 rounded-lg p-2 text-white font-semibold"></div>
-                    <div class="bg-[#151e2e] p-3 rounded-xl border border-gray-800 space-y-1.5"><label class="text-gray-400 font-semibold">Mercado Pago / Otras Cajas ($)</label><input type="number" id="saldo-mp" value="13817086" onchange="recalcularCashflow()" class="w-full bg-[#0b0f19] border border-gray-700 rounded-lg p-2 text-white font-semibold"></div>
+                    <div class="bg-[#151e2e] p-3 rounded-xl border border-gray-800 space-y-1.5"><label class="text-gray-400 font-semibold">Mercado Pago / Cajas ($)</label><input type="number" id="saldo-mp" value="13817086" onchange="recalcularCashflow()" class="w-full bg-[#0b0f19] border border-gray-700 rounded-lg p-2 text-white font-semibold"></div>
                     <div class="bg-[#1e293b] p-3 rounded-xl border border-blue-500/30 space-y-1.5 flex flex-col justify-center sm:col-span-2 md:col-span-4">
                         <span class="text-gray-400 font-medium">Total Disponibilidad Inicial</span>
                         <span id="label-sum-disponibilidades" class="text-xl font-black text-emerald-400">$ 319.817.086</span>
@@ -245,8 +250,8 @@
             <!-- FILTROS REPROGRAMACIÓN -->
             <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                 <div>
-                    <label class="text-gray-400 font-semibold mb-1 block">Buscar Proveedor / Tercero / Concepto</label>
-                    <input type="text" id="filter-search" onkeyup="renderizarTablaFacturas()" placeholder="Ej: Granja, El Taka, Guerrero, Ñimapu..." class="w-full bg-[#151e2e] border border-gray-700 rounded-lg p-2 text-white placeholder-gray-500 focus:border-blue-500 outline-none">
+                    <label class="text-gray-400 font-semibold mb-1 block">Buscar Proveedor / Tercero / Observación</label>
+                    <input type="text" id="filter-search" onkeyup="renderizarTablaFacturas()" placeholder="Ej: Granja, El Taka, Guerrero, Leandro Monedero..." class="w-full bg-[#151e2e] border border-gray-700 rounded-lg p-2 text-white placeholder-gray-500 focus:border-blue-500 outline-none">
                 </div>
                 <div class="flex items-end">
                     <span id="label-counter-facturas" class="text-xs text-gray-400 font-medium pb-2">Mostrando facturas cargadas</span>
@@ -275,7 +280,7 @@
 
     </main>
 
-    <!-- SCRIPTS CORE: LECTURA DE EXCEL Y RECALCULO DE BANCOS -->
+    <!-- SCRIPTS CORE CON AUTO-MAPPER Y MANEJO ROBUSTO -->
     <script>
         lucide.createIcons();
         let chartCashflow = null;
@@ -286,6 +291,19 @@
         
         let totalIngresosPuros = 0;
         let totalEgresosPuros = 0;
+
+        // DICCIONARIO BASE DE OBSERVACIONES POR PROVEEDOR (PRECARGADO)
+        let maestroObservaciones = {
+            "EL TAKA ELECTRICISTA": "Mantenimiento de vehículos",
+            "GRANJA EL AMANECER SRL": "Productos de terceros",
+            "SEGATORI ANIBAL ORLANDO": "Leandro Monedero",
+            "GUERRERO HUGO NORBERTO": "Alfredo Adem",
+            "SCHINDLER MARTIN": "Sebastian Valacco",
+            "BLD AGRO S.A.": "Leandro Monedero",
+            "CALF-COOPERATIVA SV PUBLICOS": "Servicios Públicos",
+            "BENEDETTI JORGE ALBERTO": "Sebastian Valacco",
+            "PRODUCTORES DE HACIENDA": "Hacienda"
+        };
 
         function cambiarPestana(tabId) {
             document.querySelectorAll('main > section').forEach(el => el.classList.add('hidden'));
@@ -304,7 +322,38 @@
         }
 
         // =========================================================
-        // MOTOR DE LECTURA ROBUSTO (DETECCIÓN FLEXIBLE DE HOJA1)
+        // CARGA DE PLANILLA MAESTRA DE OBSERVACIONES (OPCIONAL)
+        // =========================================================
+        function cargarMaestroObservaciones(event) {
+            let file = event.target.files[0];
+            if (!file) return;
+
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                let data = new Uint8Array(e.target.result);
+                let workbook = XLSX.read(data, {type: 'array'});
+                let sheet = workbook.Sheets[workbook.SheetNames[0]];
+                let json = XLSX.utils.sheet_to_json(sheet);
+
+                let count = 0;
+                json.forEach(r => {
+                    let prov = String(r.Proveedor || r.Tercero || r.proveedor || r.tercero || "").trim();
+                    let obs = String(r.Observacion || r.Observaciones || r.comisionista || r.Comisionista || "").trim();
+                    if (prov && obs) {
+                        maestroObservaciones[prov] = obs;
+                        count++;
+                    }
+                });
+
+                document.getElementById('label-estado-maestro').innerText = "✓ Maestro cargado (" + count + " asociaciones).";
+                document.getElementById('label-estado-maestro').classList.add("text-purple-400");
+                alert("✓ Maestro de observaciones cargado con " + count + " proveedores registrados.");
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        // =========================================================
+        // LECTURA DE REPORTE ERP (Con cruce automático)
         // =========================================================
         function leerArchivoExcel(event) {
             let file = event.target.files[0];
@@ -369,8 +418,13 @@
                     let importe = parseFloat(String(rawImporte).replace(/[^0-9.-]/g, '')) || 0;
 
                     let tipoDoc = row["Tipo de Doc."] || row["Tipo de doc."] || row["Tipo Doc"] || row.Doc || "Comprobante";
-                    let tercero = row.Tercero || row.tercero || row.Proveedor || row.Cliente || "Sin Especificar";
-                    let obs = row.Observaciones || row.observaciones || row.Comisionista || row.comisionista || row.Cuenta || "General";
+                    let tercero = String(row.Tercero || row.tercero || row.Proveedor || row.Cliente || "Sin Especificar").trim();
+                    
+                    // Cruce Inteligente: Si el archivo viene vacío, asigna del Maestro por Proveedor
+                    let rawObs = String(row.Observaciones || row.observaciones || row.Comisionista || row.comisionista || "").trim();
+                    let obsFinal = rawObs && rawObs !== "nan" && rawObs !== "null" 
+                        ? rawObs 
+                        : (maestroObservaciones[tercero] || "General");
 
                     if (tipo === "ingreso") {
                         if (!baseIngresosSemanales[strFecha]) baseIngresosSemanales[strFecha] = 0;
@@ -385,7 +439,7 @@
                             tercero: tercero,
                             fechaOrig: strFecha,
                             fechaAjustada: strFecha,
-                            obs: obs,
+                            obs: obsFinal,
                             importe: importe // Negativo
                         });
                     }
@@ -407,7 +461,7 @@
         function recalcularCashflow() {
             if (semanasOrdenadas.length === 0) return;
 
-            // 1. Obtener saldos iniciales del formulario (Incluye Banco BPN y Banco Galicia)
+            // 1. Obtener saldos iniciales (incluye Banco BPN y Banco Galicia)
             let bna = parseFloat(document.getElementById('saldo-bna').value) || 0;
             let galicia = parseFloat(document.getElementById('saldo-galicia').value) || 0;
             let bpn = parseFloat(document.getElementById('saldo-bpn').value) || 0;
@@ -525,7 +579,7 @@
                     tbody.innerHTML += `
                         <tr class="${rowClass} transition-all">
                             <td class="p-3 font-semibold text-white">${item.doc}</td>
-                            <td class="p-3 text-gray-200">${item.tercero} <span class="text-[10px] text-gray-500 block">${item.obs}</span></td>
+                            <td class="p-3 text-gray-200">${item.tercero} <span class="text-[10px] text-purple-400 font-semibold block">🏷️ ${item.obs}</span></td>
                             <td class="p-3 text-gray-400 font-medium">${item.fechaOrig}</td>
                             <td class="p-3">
                                 <select onchange="cambiarVencimientoFactura(${item.id}, this.value)" class="bg-[#151e2e] border border-blue-500/50 rounded-lg p-1.5 text-xs text-blue-300 font-semibold focus:outline-none">
