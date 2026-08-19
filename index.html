@@ -34,14 +34,14 @@
             <div>
                 <h1 class="text-lg font-bold text-white flex items-center gap-2">
                     Dirección Financiera & Cash Flow Integral
-                    <span class="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-medium">v5.6 Maestro Priority</span>
+                    <span class="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-medium">v7.0 Commercial Engine</span>
                 </h1>
-                <p class="text-xs text-gray-400">Asignación prioritaria de observaciones por Maestro, reprogramación de pagos y cascada de cobro.</p>
+                <p class="text-xs text-gray-400">Cash Flow Operativo ERP, Presupuesto Comercial por Familia y Proyección de Caja.</p>
             </div>
         </div>
     </header>
 
-    <!-- PESTAÑAS DE NAVEGACIÓN -->
+    <!-- PESTAÑAS DE NAVEGACIÓN (6 PESTAÑAS) -->
     <nav class="bg-[#151e2e] border-b border-gray-800 px-6 py-2">
         <div class="flex items-center gap-2 text-xs text-gray-400 overflow-x-auto">
             <button onclick="cambiarPestana('tab-cargar')" id="btn-tab-cargar" class="tab-button tab-active px-4 py-2 rounded-lg flex items-center gap-2 transition-all">
@@ -56,6 +56,12 @@
             <button onclick="cambiarPestana('tab-facturas')" id="btn-tab-facturas" class="tab-button px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-800 transition-all">
                 <i data-lucide="receipt" class="w-4 h-4"></i> 4. Facturas & Reprogramación ⚡
             </button>
+            <button onclick="cambiarPestana('tab-comercial')" id="btn-tab-comercial" class="tab-button px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-800 transition-all border border-purple-500/30 text-purple-300">
+                <i data-lucide="shopping-bag" class="w-4 h-4"></i> 5. Presupuesto Comercial & Mix 🎯
+            </button>
+            <button onclick="cambiarPestana('tab-estrategico')" id="btn-tab-estrategico" class="tab-button px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-800 transition-all border border-blue-500/30 text-blue-300">
+                <i data-lucide="calendar-range" class="w-4 h-4"></i> 6. Cash Flow Estratégico 90D 🚀
+            </button>
         </div>
     </nav>
 
@@ -67,7 +73,6 @@
             <div class="bg-[#111827] border border-gray-800 rounded-2xl p-6 space-y-4">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     
-                    <!-- ZONA DE CARGA 1: REPORTES SEMANALES ERP -->
                     <div class="border-2 border-dashed border-gray-700 hover:border-blue-500 bg-[#151e2e] rounded-xl p-5 text-center space-y-3 transition-all cursor-pointer">
                         <div class="w-10 h-10 bg-blue-500/10 text-blue-500 rounded-full flex items-center justify-center mx-auto">
                             <i data-lucide="file-up" class="w-5 h-5"></i>
@@ -80,20 +85,21 @@
                         <button onclick="document.getElementById('excel-input').click()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-lg text-xs font-medium">Seleccionar Reporte</button>
                     </div>
 
-                    <!-- ZONA DE CARGA 2: ARCHIVO MAESTRO DE OBSERVACIONES -->
-                    <div class="border-2 border-dashed border-gray-700 hover:border-purple-500 bg-[#151e2e] rounded-xl p-5 text-center space-y-3 transition-all cursor-pointer">
+                    <div class="border-2 border-dashed border-gray-700 hover:border-purple-500 bg-[#151e2e] rounded-xl p-5 text-center space-y-3 transition-all">
                         <div class="w-10 h-10 bg-purple-500/10 text-purple-400 rounded-full flex items-center justify-center mx-auto">
                             <i data-lucide="book-open" class="w-5 h-5"></i>
                         </div>
                         <div>
-                            <p class="text-xs font-bold text-white">2. Cargar Maestro de Observaciones</p>
-                            <p id="label-estado-maestro" class="text-[11px] text-gray-400">Cruce Proveedor -> Observación</p>
+                            <p class="text-xs font-bold text-white">2. Maestro de Proveedores (Memoria Activa)</p>
+                            <p id="label-estado-maestro" class="text-[11px] text-purple-400 font-medium">✓ Memoria Guardada en Navegador</p>
                         </div>
-                        <input type="file" id="maestro-input" accept=".xlsx, .xls, .csv" class="hidden" onchange="cargarMaestroObservaciones(event)">
-                        <button onclick="document.getElementById('maestro-input').click()" class="bg-purple-600 hover:bg-purple-500 text-white px-3 py-1.5 rounded-lg text-xs font-medium">Subir Maestro (Opcional)</button>
+                        <div class="flex gap-2 justify-center">
+                            <input type="file" id="maestro-input" accept=".xlsx, .xls, .csv" class="hidden" onchange="cargarMaestroObservaciones(event)">
+                            <button onclick="document.getElementById('maestro-input').click()" class="bg-purple-600 hover:bg-purple-500 text-white px-2.5 py-1.5 rounded-lg text-xs font-medium">Importar Excel</button>
+                            <button onclick="abrirModalProveedorNuevo()" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 text-white px-2.5 py-1.5 rounded-lg text-xs font-medium">➕ Agregar Nuevo</button>
+                        </div>
                     </div>
 
-                    <!-- SIMULADOR DE COBRABILIDAD EN CASCADA -->
                     <div class="bg-[#151e2e] border border-gray-800 rounded-xl p-4 space-y-3">
                         <h3 class="text-xs font-bold text-blue-400 uppercase tracking-wider flex items-center gap-2">
                             <i data-lucide="sliders" class="w-4 h-4"></i> Curva de Cobro de Facturas
@@ -148,7 +154,7 @@
             </div>
         </section>
 
-        <!-- PESTAÑA 2: CASH FLOW PROYECTADO & ALERTAS DINÁMICAS -->
+        <!-- PESTAÑA 2: CASH FLOW PROYECTADO OPERATIVO -->
         <section id="tab-cashflow" class="hidden space-y-6">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div class="gradient-card-blue p-5 rounded-2xl shadow-xl space-y-1"><p class="text-xs font-bold text-blue-100 uppercase">Caja Inicial Disponible</p><p id="kpi-caja-ini" class="text-2xl font-black text-white">$ 174.854.000</p></div>
@@ -177,28 +183,15 @@
 
         <!-- PESTAÑA 3: TABLERO DE KPIS -->
         <section id="tab-kpis" class="hidden space-y-6">
-            <div class="flex flex-wrap items-center justify-between gap-4 border-b border-gray-800 pb-4">
-                <div>
-                    <h2 class="text-base font-bold text-white flex items-center gap-2">
-                        <i data-lucide="bar-chart-2" class="w-5 h-5 text-blue-500"></i> Tablero Consolidado de KPIs de Tesorería (KPI-01 a KPI-08)
-                    </h2>
-                    <p class="text-xs text-gray-400">Indicadores clave reconstruidos a partir de disponibilidades, cuentas por cobrar, pasivos y ciclo financiero.</p>
-                </div>
-            </div>
-
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-2"><div class="flex justify-between items-start"><span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30">KPI-01</span><span class="text-[10px] text-gray-400">Proyectado / Cajas</span></div><p class="text-xs font-semibold text-gray-300">Posición de Caja Inicial</p><p id="kpi-01-val" class="text-2xl font-black text-white">$ 174.854.000</p><p class="text-[11px] text-emerald-400 font-medium">✓ Disponibilidades Líquidas</p></div>
-                <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-2"><div class="flex justify-between items-start"><span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30">KPI-02</span><span class="text-[10px] text-gray-400">Saldos en calle</span></div><p class="text-xs font-semibold text-gray-300">Total Cuentas por Cobrar</p><p id="kpi-02-val" class="text-2xl font-black text-white">$ 0</p><p class="text-[11px] text-blue-400 font-medium">Consolidado Cartera Exigible</p></div>
-                <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-2"><div class="flex justify-between items-start"><span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-red-500/20 text-red-400 border border-red-500/30">KPI-03</span><span class="text-[10px] text-gray-400">Saldos en calle</span></div><p class="text-xs font-semibold text-gray-300">Monto CxC Vencido</p><p id="kpi-03-val" class="text-2xl font-black text-red-400">$ 643.173.118</p><p class="text-[11px] text-red-400 font-medium">⚠️ Cartera en Riesgo</p></div>
-                <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-2"><div class="flex justify-between items-start"><span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-red-500/20 text-red-400 border border-red-500/30">KPI-04</span><span class="text-[10px] text-gray-400">Calculado</span></div><p class="text-xs font-semibold text-gray-300">Porcentaje de Mora</p><p id="kpi-04-val" class="text-2xl font-black text-red-400">62,2%</p><p class="text-[11px] text-red-400 font-medium">Alerta Roja (>30% Aceptable)</p></div>
-                <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-2"><div class="flex justify-between items-start"><span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30">KPI-05</span><span class="text-[10px] text-gray-400">Calculado</span></div><p class="text-xs font-semibold text-gray-300">DSO (Días de Cobro)</p><p id="kpi-05-val" class="text-2xl font-black text-blue-400">13,8 Días</p><p class="text-[11px] text-emerald-400 font-medium">Promedio Teórico</p></div>
-                <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-2"><div class="flex justify-between items-start"><span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">KPI-06</span><span class="text-[10px] text-gray-400">Proyectado / Deuda</span></div><p class="text-xs font-semibold text-gray-300">Deuda Total Comercial</p><p id="kpi-06-val" class="text-2xl font-black text-amber-400">$ 0</p><p class="text-[11px] text-amber-300 font-medium">Facturas Compra + Hacienda</p></div>
-                <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-2"><div class="flex justify-between items-start"><span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">KPI-07</span><span class="text-[10px] text-gray-400">Calculado</span></div><p class="text-xs font-semibold text-gray-300">DPO (Días de Pago)</p><p id="kpi-07-val" class="text-2xl font-black text-amber-400">62,5 Días</p><p class="text-[11px] text-gray-400 font-medium">Financiación Proveedores</p></div>
-                <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-2"><div class="flex justify-between items-start"><span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">KPI-08</span><span class="text-[10px] text-gray-400">Calculado</span></div><p class="text-xs font-semibold text-gray-300">Ciclo Financiero Puro</p><p id="kpi-08-val" class="text-2xl font-black text-emerald-400">-48,7 Días</p><p class="text-[11px] text-emerald-400 font-medium">Financiación Proveedores</p></div>
+                <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-2"><div class="flex justify-between items-start"><span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30">KPI-01</span></div><p class="text-xs font-semibold text-gray-300">Posición de Caja Inicial</p><p id="kpi-01-val" class="text-2xl font-black text-white">$ 174.854.000</p></div>
+                <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-2"><div class="flex justify-between items-start"><span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30">KPI-02</span></div><p class="text-xs font-semibold text-gray-300">Total Cuentas por Cobrar</p><p id="kpi-02-val" class="text-2xl font-black text-white">$ 0</p></div>
+                <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-2"><div class="flex justify-between items-start"><span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-red-500/20 text-red-400 border border-red-500/30">KPI-03</span></div><p class="text-xs font-semibold text-gray-300">Monto CxC Vencido</p><p id="kpi-03-val" class="text-2xl font-black text-red-400">$ 643.173.118</p></div>
+                <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-2"><div class="flex justify-between items-start"><span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">KPI-06</span></div><p class="text-xs font-semibold text-gray-300">Deuda Total Comercial</p><p id="kpi-06-val" class="text-2xl font-black text-amber-400">$ 0</p></div>
             </div>
         </section>
 
-        <!-- PESTAÑA 4: FACTURAS & REPROGRAMACIÓN CON COLUMNA EMPRESA Y FILTROS -->
+        <!-- PESTAÑA 4: FACTURAS & REPROGRAMACIÓN -->
         <section id="tab-facturas" class="hidden space-y-6">
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-1"><span class="text-xs font-bold text-gray-400 uppercase">Comprobantes Postergados</span><p id="label-count-deferred" class="text-2xl font-black text-amber-400">0 Facturas</p></div>
@@ -206,57 +199,95 @@
                 <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-1 flex flex-col justify-center"><button onclick="resetearCorrimientos()" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 text-xs text-gray-300 font-semibold py-2 px-3 rounded-xl transition-all">Restablecer Vencimientos Originales</button></div>
             </div>
 
-            <!-- FILTROS REPROGRAMACIÓN -->
             <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
-                <div>
-                    <label class="text-gray-400 font-semibold mb-1 block">Filtrar por Observaciones / Comisionista</label>
-                    <select id="filter-obs" onchange="renderizarTablaFacturas()" class="w-full bg-[#151e2e] border border-gray-700 rounded-lg p-2 text-white font-medium focus:border-blue-500 outline-none">
-                        <option value="TODOS">Todas las Observaciones</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="text-gray-400 font-semibold mb-1 block">Filtrar por Empresa</label>
-                    <select id="filter-empresa" onchange="renderizarTablaFacturas()" class="w-full bg-[#151e2e] border border-gray-700 rounded-lg p-2 text-white font-medium focus:border-blue-500 outline-none">
-                        <option value="TODAS">Todas las Empresas</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="text-gray-400 font-semibold mb-1 block">Buscar Proveedor / Tercero / Texto</label>
-                    <input type="text" id="filter-search" onkeyup="renderizarTablaFacturas()" placeholder="Ej: Granja, El Taka, Guerrero, Ñimapu..." class="w-full bg-[#151e2e] border border-gray-700 rounded-lg p-2 text-white placeholder-gray-500 focus:border-blue-500 outline-none">
-                </div>
+                <div><label class="text-gray-400 font-semibold mb-1 block">Filtrar por Observaciones</label><select id="filter-obs" onchange="renderizarTablaFacturas()" class="w-full bg-[#151e2e] border border-gray-700 rounded-lg p-2 text-white font-medium focus:border-blue-500 outline-none"><option value="TODOS">Todas las Observaciones</option></select></div>
+                <div><label class="text-gray-400 font-semibold mb-1 block">Filtrar por Empresa</label><select id="filter-empresa" onchange="renderizarTablaFacturas()" class="w-full bg-[#151e2e] border border-gray-700 rounded-lg p-2 text-white font-medium focus:border-blue-500 outline-none"><option value="TODAS">Todas las Empresas</option></select></div>
+                <div><label class="text-gray-400 font-semibold mb-1 block">Buscar Proveedor / Texto</label><input type="text" id="filter-search" onkeyup="renderizarTablaFacturas()" placeholder="Ej: Granja, El Taka, Guerrero..." class="w-full bg-[#151e2e] border border-gray-700 rounded-lg p-2 text-white outline-none"></div>
             </div>
 
             <div class="bg-[#111827] border border-gray-800 rounded-2xl overflow-hidden p-4 space-y-3">
-                <div class="flex justify-between items-center px-2">
-                    <span class="text-xs font-bold text-gray-300">Listado Exigible de Comprobantes</span>
-                    <span id="label-counter-facturas" class="text-xs text-gray-400 font-medium">Mostrando facturas cargadas</span>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead><tr class="border-b border-gray-800 text-gray-400 font-semibold bg-[#151e2e]"><th class="p-3">Comprobante</th><th class="p-3">Empresa</th><th class="p-3">Proveedor / Tercero</th><th class="p-3">Sem. Original</th><th class="p-3">Acción de Pago</th><th class="p-3">Estado</th><th class="p-3 text-right">Importe ($)</th></tr></thead>
+                        <tbody id="tabla-facturas-body" class="divide-y divide-gray-800 text-gray-300"></tbody>
+                    </table>
                 </div>
+            </div>
+        </section>
 
+        <!-- PESTAÑA 5: PRESUPUESTO COMERCIAL & MIX DE VENTAS (NUEVA) -->
+        <section id="tab-comercial" class="hidden space-y-6">
+            <div class="flex flex-wrap items-center justify-between gap-4 border-b border-gray-800 pb-4">
+                <div>
+                    <h2 class="text-base font-bold text-purple-400 flex items-center gap-2">
+                        <i data-lucide="shopping-bag" class="w-5 h-5"></i> Presupuesto Comercial & Mix de Ventas por Familia
+                    </h2>
+                    <p class="text-xs text-gray-400">Simulación de Kilos, Precios Promedio ($/kg) y Plazos de Cobranza para alimentar el Cash Flow Estratégico.</p>
+                </div>
+                <button onclick="calcularPresupuestoComercial()" class="bg-purple-600 hover:bg-purple-500 text-xs text-white px-4 py-2 rounded-xl font-semibold shadow-lg shadow-purple-600/20 transition-all flex items-center gap-2">
+                    <i data-lucide="refresh-cw" class="w-4 h-4"></i> Recalcular Venta Comercial
+                </button>
+            </div>
+
+            <!-- TARJETAS DE RESUMEN COMERCIAL -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-1">
+                    <span class="text-xs font-bold text-gray-400 uppercase">Volumen Total Kilos (Mes M)</span>
+                    <p id="label-total-kg-m" class="text-2xl font-black text-purple-400">0 kg</p>
+                    <p class="text-[11px] text-gray-400">Capacidad de Faena & Desposte</p>
+                </div>
+                <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-1">
+                    <span class="text-xs font-bold text-gray-400 uppercase">Facturación Bruta Proyectada</span>
+                    <p id="label-total-venta-m" class="text-2xl font-black text-emerald-400">$ 0</p>
+                    <p class="text-[11px] text-gray-400">Pesos Totales Facturados</p>
+                </div>
+                <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-1">
+                    <span class="text-xs font-bold text-gray-400 uppercase">Precio Promedio Ponderado</span>
+                    <p id="label-precio-prom-m" class="text-2xl font-black text-blue-400">$ 0 / kg</p>
+                    <p class="text-[11px] text-gray-400">Mezcla de Familias (Mix)</p>
+                </div>
+            </div>
+
+            <!-- TABLA DE EDICIÓN DE KILOS Y PRECIOS POR FAMILIA -->
+            <div class="bg-[#111827] border border-gray-800 rounded-2xl overflow-hidden p-4 space-y-3">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs border-collapse">
                         <thead>
                             <tr class="border-b border-gray-800 text-gray-400 font-semibold bg-[#151e2e]">
-                                <th class="p-3">Comprobante</th>
-                                <th class="p-3">Empresa</th>
-                                <th class="p-3">Proveedor / Tercero</th>
-                                <th class="p-3">Sem. Original</th>
-                                <th class="p-3">Acción de Pago / Reprogramación</th>
-                                <th class="p-3">Estado / Alerta</th>
-                                <th class="p-3 text-right">Importe ($)</th>
+                                <th class="p-3">Familia de Producto</th>
+                                <th class="p-3 text-center">Plazo Cobro (Días)</th>
+                                <th class="p-3 text-right">Kilos Proyectados (Mes M)</th>
+                                <th class="p-3 text-right">Precio Promedio ($/kg)</th>
+                                <th class="p-3 text-right">Facturación Proyectada ($)</th>
+                                <th class="p-3 text-center">Foco de Caja</th>
                             </tr>
                         </thead>
-                        <tbody id="tabla-facturas-body" class="divide-y divide-gray-800 text-gray-300">
+                        <tbody id="tabla-comercial-body" class="divide-y divide-gray-800 text-gray-300">
                         </tbody>
                     </table>
                 </div>
             </div>
         </section>
 
+        <!-- PESTAÑA 6: CASH FLOW ESTRATÉGICO 90 DÍAS (PRÓXIMAMENTE) -->
+        <section id="tab-estrategico" class="hidden space-y-6">
+            <div class="bg-[#111827] border border-gray-800 rounded-2xl p-8 text-center space-y-4">
+                <div class="w-16 h-16 bg-blue-500/10 text-blue-400 rounded-full flex items-center justify-center mx-auto">
+                    <i data-lucide="calendar-range" class="w-8 h-8"></i>
+                </div>
+                <h3 class="text-lg font-bold text-white">Cash Flow Estratégico 90 Días (Mes M | Mes M+1 | Mes M+2)</h3>
+                <p class="text-xs text-gray-400 max-w-xl mx-auto">
+                    Esta solapa consolidará la cobranza calculada desde la <strong>Pestaña 5 (Presupuesto Comercial)</strong> con los egresos fijos estructurales (Sueldos, AFIP, ART, Préstamos) y las compras de hacienda/materia prima.
+                </p>
+                <div class="inline-block bg-blue-500/20 text-blue-400 border border-blue-500/30 px-3 py-1 rounded-full text-xs font-semibold">
+                    ⚡ Lista para vincular en el siguiente paso
+                </div>
+            </div>
+        </section>
+
     </main>
 
-    <!-- SCRIPTS CORE CON PRIORIDAD MAESTRO Y CASCADA DE COBRANZA -->
+    <!-- SCRIPTS CORE -->
     <script>
         lucide.createIcons();
         let chartCashflow = null;
@@ -268,7 +299,18 @@
         let totalIngresosPuros = 0;
         let totalEgresosPuros = 0;
 
-        let maestroObservaciones = {
+        // FAMILIAS COMERCIALES BASE (PESTAÑA 5)
+        let presupuestoComercialBase = [
+            { familia: "Vacunos / Medias Reses", kilos: 250000, precio: 3800, diasCobro: 14, prioridad: "Volumen / Caja Intermedia" },
+            { familia: "Cerdo", kilos: 80000, precio: 2900, diasCobro: 7, prioridad: "⚡ Caja Rápida" },
+            { familia: "Pollos", kilos: 60000, precio: 2100, diasCobro: 7, prioridad: "⚡ Caja Rápida" },
+            { familia: "Menudencias / Achuras", kilos: 35000, precio: 1800, diasCobro: 0, prioridad: "🔥 Contado Inmediato" },
+            { familia: "Congelados", kilos: 25000, precio: 3200, diasCobro: 14, prioridad: "Margen Medio" },
+            { familia: "Quesos", kilos: 15000, precio: 4500, diasCobro: 14, prioridad: "Alto Margen" },
+            { familia: "Productos Elaborados", kilos: 20000, precio: 4900, diasCobro: 21, prioridad: "💎 Máximo Margen" }
+        ];
+
+        let maestroObservaciones = JSON.parse(localStorage.getItem('maestro_proveedores_cashflow')) || {
             "EL TAKA ELECTRICISTA": "Mantenimiento de vehículos",
             "GRANJA EL AMANECER SRL": "Productos de terceros",
             "SEGATORI ANIBAL ORLANDO": "Leandro Monedero",
@@ -280,6 +322,31 @@
             "PRODUCTORES DE HACIENDA": "Hacienda",
             "COOP.DE T.F.J.J.GOMEZ LTDA": "Faenadores"
         };
+
+        function guardarMaestroEnMemoria() {
+            localStorage.setItem('maestro_proveedores_cashflow', JSON.stringify(maestroObservaciones));
+        }
+
+        function abrirModalProveedorNuevo() {
+            let prov = prompt("Ingrese el Nombre Exacto del Proveedor (tal como figura en Finnegans):");
+            if (!prov) return;
+            let obs = prompt("Ingrese la Observación / Categoría para " + prov + " (ej: Faenadores, Leandro Monedero, Compras):");
+            if (!obs) return;
+
+            maestroObservaciones[prov.trim()] = obs.trim();
+            guardarMaestroEnMemoria();
+            alert("✓ Proveedor " + prov + " registrado con categoría '" + obs + "'. Guardado en la memoria activa del navegador.");
+            
+            if (facturasDetalle.length > 0) {
+                facturasDetalle.forEach(f => {
+                    let kComb = f.tercero + " | " + f.empresa;
+                    if (maestroObservaciones[kComb]) f.obs = maestroObservaciones[kComb];
+                    else if (maestroObservaciones[f.tercero]) f.obs = maestroObservaciones[f.tercero];
+                });
+                poblarFiltrosDesplegables();
+                renderizarTablaFacturas();
+            }
+        }
 
         function getPropVal(row, keyNames) {
             if (!row) return undefined;
@@ -376,10 +443,63 @@
             document.getElementById('btn-' + tabId).classList.add('tab-active');
             
             calcularSaldoInicial();
-            if (facturasDetalle.length > 0) {
+            if (tabId === 'tab-comercial') {
+                renderizarTablaComercial();
+            } else if (facturasDetalle.length > 0) {
                 recalcularCashflow();
                 if (tabId === 'tab-facturas') renderizarTablaFacturas();
             }
+        }
+
+        // LÓGICA Y RENDER DE LA PESTAÑA 5 (PRESUPUESTO COMERCIAL)
+        function renderizarTablaComercial() {
+            let tbody = document.getElementById('tabla-comercial-body');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            let totalKg = 0;
+            let totalVentaVal = 0;
+
+            presupuestoComercialBase.forEach((item, idx) => {
+                let ventaItem = item.kilos * item.precio;
+                totalKg += item.kilos;
+                totalVentaVal += ventaItem;
+
+                let badgeCol = "bg-gray-800 text-gray-300";
+                if (item.prioridad.includes("Caja Rápida") || item.prioridad.includes("Inmediato")) badgeCol = "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+                if (item.prioridad.includes("Máximo Margen")) badgeCol = "bg-purple-500/20 text-purple-400 border border-purple-500/30";
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-[#151e2e] transition-all">
+                        <td class="p-3 font-semibold text-white">${item.familia}</td>
+                        <td class="p-3 text-center text-blue-400 font-bold">${item.diasCobro} días</td>
+                        <td class="p-3 text-right">
+                            <input type="number" value="${item.kilos}" onchange="actualizarComercialItem(${idx}, 'kilos', this.value)" class="bg-[#0b0f19] border border-gray-700 rounded p-1 text-right text-white font-semibold w-28">
+                        </td>
+                        <td class="p-3 text-right">
+                            <input type="number" value="${item.precio}" onchange="actualizarComercialItem(${idx}, 'precio', this.value)" class="bg-[#0b0f19] border border-gray-700 rounded p-1 text-right text-emerald-400 font-semibold w-24">
+                        </td>
+                        <td class="p-3 text-right font-bold text-white">$ ${formatearMoneda(ventaItem)}</td>
+                        <td class="p-3 text-center"><span class="px-2 py-0.5 text-[10px] font-bold rounded-full ${badgeCol}">${item.prioridad}</span></td>
+                    </tr>
+                `;
+            });
+
+            let precioPromPonderado = totalKg > 0 ? (totalVentaVal / totalKg) : 0;
+
+            document.getElementById('label-total-kg-m').innerText = formatearMoneda(totalKg) + " kg";
+            document.getElementById('label-total-venta-m').innerText = "$ " + formatearMoneda(totalVentaVal);
+            document.getElementById('label-precio-prom-m').innerText = "$ " + formatearMoneda(precioPromPonderado) + " / kg";
+        }
+
+        function actualizarComercialItem(idx, campo, valor) {
+            presupuestoComercialBase[idx][campo] = parseMonto(valor);
+            renderizarTablaComercial();
+        }
+
+        function calcularPresupuestoComercial() {
+            renderizarTablaComercial();
+            alert("✓ Presupuesto comercial recalculado. Listo para proyectar en Cash Flow Estratégico.");
         }
 
         function cargarMaestroObservaciones(event) {
@@ -402,15 +522,16 @@
                     if (prov && obs) {
                         maestroObservaciones[prov] = obs;
                         if (emp) {
-                            maestroObservaciones[prov + " | " + emp] = obs; // Asignación por empresa
+                            maestroObservaciones[prov + " | " + emp] = obs;
                         }
                         count++;
                     }
                 });
 
-                document.getElementById('label-estado-maestro').innerText = "✓ Maestro cargado (" + count + " asociaciones).";
+                guardarMaestroEnMemoria();
+                document.getElementById('label-estado-maestro').innerText = "✓ Maestro Guardado en Memoria (" + count + " reg).";
                 document.getElementById('label-estado-maestro').classList.add("text-purple-400");
-                alert("✓ Maestro de observaciones cargado con " + count + " reglas.");
+                alert("✓ Maestro cargado y guardado en la memoria permanente del navegador.");
                 
                 if (facturasDetalle.length > 0) {
                     poblarFiltrosDesplegables();
@@ -489,11 +610,6 @@
                     
                     let rawObs = String(getPropVal(row, ['Observaciones', 'observaciones', 'Comisionista']) || "").trim();
                     
-                    // PRIORIDAD CRÍTICA DE ASIGNACIÓN:
-                    // 1. Observaciones del reporte ERP si existen
-                    // 2. Maestro por Proveedor + Empresa combinado
-                    // 3. Maestro por Proveedor simple
-                    // 4. Cuenta contable del reporte o "General"
                     let keyCombo = tercero + " | " + empresa;
                     let obsFinal = "General";
 
@@ -563,15 +679,11 @@
             }
         }
 
-        // =========================================================
-        // RECALCULO DE CASHFLOW CON MODELO DE CASCADA (AGING DYNAMIC)
-        // =========================================================
         function recalcularCashflow() {
             let saldoInicialTotal = calcularSaldoInicial();
 
             if (semanasOrdenadas.length === 0) return;
 
-            // Porcentajes del Simulador de Cobrabilidad
             let pct1 = (parseInt(document.getElementById('slider-pct-1').value) || 0) / 100.0;
             let pct2 = (parseInt(document.getElementById('slider-pct-2').value) || 0) / 100.0;
             let pct3 = (parseInt(document.getElementById('slider-pct-3').value) || 0) / 100.0;
@@ -586,7 +698,6 @@
                 egrSimulados[s] = 0;
             });
 
-            // MODELO DE CASCADA: Cada semana de vencimiento ERP distribuye su saldo hacia adelante
             semanasOrdenadas.forEach((sOrig, iOrig) => {
                 let montoOrig = baseIngresosSemanales[sOrig] || 0;
 
@@ -770,7 +881,7 @@
             
             let semNames = semanasOrdenadas.map((s,i) => "Sem " + (i+1));
             let ingresosData = semanasOrdenadas.map(s => (dictIngresos[s] || 0) / 1e6);
-            let egresosData = semanasOrdenadas.map(s => (dictEgresos[s] || 0) / 1e6);
+            let egresosData = semanasOrdenadas.map(s => Math.abs(dictEgresos[s] || 0) / 1e6);
             let saldoData = saldoSeries.map(s => s / 1e6);
 
             if (chartCashflow) chartCashflow.destroy();
@@ -798,6 +909,7 @@
 
         window.onload = function() {
             calcularSaldoInicial();
+            renderizarTablaComercial();
         };
     </script>
 </body>
