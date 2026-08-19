@@ -34,14 +34,19 @@
             <div>
                 <h1 class="text-lg font-bold text-white flex items-center gap-2">
                     Dirección Financiera & Cash Flow Integral
-                    <span class="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-medium">v7.0 Commercial Engine</span>
+                    <span class="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-medium">v7.2 Cross-Repo Sync</span>
                 </h1>
-                <p class="text-xs text-gray-400">Cash Flow Operativo ERP, Presupuesto Comercial por Familia y Proyección de Caja.</p>
+                <p class="text-xs text-gray-400">Egresos Finnegans + Sincronización Automática con 'Seguimiento-cobranzas'.</p>
             </div>
+        </div>
+
+        <div id="badge-sync-repo" class="bg-purple-500/10 border border-purple-500/30 px-3 py-1.5 rounded-xl flex items-center gap-2 text-xs text-purple-300 font-semibold">
+            <i data-lucide="link" class="w-4 h-4 text-purple-400"></i>
+            <span id="label-sync-text">🔗 Sincronizado con 'Seguimiento-cobranzas'</span>
         </div>
     </header>
 
-    <!-- PESTAÑAS DE NAVEGACIÓN (6 PESTAÑAS) -->
+    <!-- PESTAÑAS DE NAVEGACIÓN -->
     <nav class="bg-[#151e2e] border-b border-gray-800 px-6 py-2">
         <div class="flex items-center gap-2 text-xs text-gray-400 overflow-x-auto">
             <button onclick="cambiarPestana('tab-cargar')" id="btn-tab-cargar" class="tab-button tab-active px-4 py-2 rounded-lg flex items-center gap-2 transition-all">
@@ -73,18 +78,20 @@
             <div class="bg-[#111827] border border-gray-800 rounded-2xl p-6 space-y-4">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     
+                    <!-- ZONA DE CARGA 1: REPORTES SEMANALES ERP (EGRESOS / FACTURAS A PAGAR) -->
                     <div class="border-2 border-dashed border-gray-700 hover:border-blue-500 bg-[#151e2e] rounded-xl p-5 text-center space-y-3 transition-all cursor-pointer">
                         <div class="w-10 h-10 bg-blue-500/10 text-blue-500 rounded-full flex items-center justify-center mx-auto">
                             <i data-lucide="file-up" class="w-5 h-5"></i>
                         </div>
                         <div>
                             <p class="text-xs font-bold text-white">1. Subir Reporte Finnegans ERP</p>
-                            <p id="label-estado-archivo" class="text-[11px] text-gray-400">Ej: Reporte (7).xlsx o Cashflow.xlsx</p>
+                            <p id="label-estado-archivo" class="text-[11px] text-gray-400">Facturas Pendientes de Pago & Egresos</p>
                         </div>
                         <input type="file" id="excel-input" accept=".xlsx, .xls" class="hidden" onchange="leerArchivoExcel(event)">
                         <button onclick="document.getElementById('excel-input').click()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-lg text-xs font-medium">Seleccionar Reporte</button>
                     </div>
 
+                    <!-- ZONA DE CARGA 2: ARCHIVO MAESTRO DE OBSERVACIONES -->
                     <div class="border-2 border-dashed border-gray-700 hover:border-purple-500 bg-[#151e2e] rounded-xl p-5 text-center space-y-3 transition-all">
                         <div class="w-10 h-10 bg-purple-500/10 text-purple-400 rounded-full flex items-center justify-center mx-auto">
                             <i data-lucide="book-open" class="w-5 h-5"></i>
@@ -100,9 +107,10 @@
                         </div>
                     </div>
 
+                    <!-- SIMULADOR DE COBRABILIDAD EN CASCADA -->
                     <div class="bg-[#151e2e] border border-gray-800 rounded-xl p-4 space-y-3">
                         <h3 class="text-xs font-bold text-blue-400 uppercase tracking-wider flex items-center gap-2">
-                            <i data-lucide="sliders" class="w-4 h-4"></i> Curva de Cobro de Facturas
+                            <i data-lucide="sliders" class="w-4 h-4"></i> Curva de Cobro de Facturas (Fallback)
                         </h3>
                         <div class="space-y-2 text-xs">
                             <div>
@@ -165,12 +173,12 @@
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 <div class="lg:col-span-7 bg-[#111827] border border-gray-800 rounded-2xl p-6 space-y-4">
-                    <h3 class="text-sm font-bold text-white flex items-center gap-2"><i data-lucide="line-chart" class="w-4 h-4 text-blue-400"></i> Evolución Semanal</h3>
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2"><i data-lucide="line-chart" class="w-4 h-4 text-blue-400"></i> Evolución Semanal (Barras sobre el mismo eje)</h3>
                     <div class="h-[340px] w-full"><canvas id="chartCashflow"></canvas></div>
                 </div>
 
                 <div class="lg:col-span-5 bg-[#111827] border border-gray-800 rounded-2xl p-6 space-y-4">
-                    <h3 class="text-sm font-bold text-white flex items-center gap-2"><i data-lucide="alert-triangle" class="w-4 h-4 text-amber-400"></i> Matriz de Alertas con Cascada de Cobranza</h3>
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2"><i data-lucide="alert-triangle" class="w-4 h-4 text-amber-400"></i> Matriz de Alertas con Cascada / Cobranza Sync</h3>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-xs border-collapse">
                             <thead><tr class="border-b border-gray-800 text-gray-400 font-semibold"><th class="py-2">Semana</th><th class="py-2 text-right">Ingresos Proyectados</th><th class="py-2 text-right">Egresos</th><th class="py-2 text-right">Saldo Final</th><th class="py-2 text-center">Estado</th></tr></thead>
@@ -215,7 +223,7 @@
             </div>
         </section>
 
-        <!-- PESTAÑA 5: PRESUPUESTO COMERCIAL & MIX DE VENTAS (NUEVA) -->
+        <!-- PESTAÑA 5: PRESUPUESTO COMERCIAL & MIX DE VENTAS -->
         <section id="tab-comercial" class="hidden space-y-6">
             <div class="flex flex-wrap items-center justify-between gap-4 border-b border-gray-800 pb-4">
                 <div>
@@ -229,7 +237,6 @@
                 </button>
             </div>
 
-            <!-- TARJETAS DE RESUMEN COMERCIAL -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-1">
                     <span class="text-xs font-bold text-gray-400 uppercase">Volumen Total Kilos (Mes M)</span>
@@ -248,7 +255,6 @@
                 </div>
             </div>
 
-            <!-- TABLA DE EDICIÓN DE KILOS Y PRECIOS POR FAMILIA -->
             <div class="bg-[#111827] border border-gray-800 rounded-2xl overflow-hidden p-4 space-y-3">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs border-collapse">
@@ -269,7 +275,7 @@
             </div>
         </section>
 
-        <!-- PESTAÑA 6: CASH FLOW ESTRATÉGICO 90 DÍAS (PRÓXIMAMENTE) -->
+        <!-- PESTAÑA 6: CASH FLOW ESTRATÉGICO 90 DÍAS -->
         <section id="tab-estrategico" class="hidden space-y-6">
             <div class="bg-[#111827] border border-gray-800 rounded-2xl p-8 text-center space-y-4">
                 <div class="w-16 h-16 bg-blue-500/10 text-blue-400 rounded-full flex items-center justify-center mx-auto">
@@ -299,7 +305,20 @@
         let totalIngresosPuros = 0;
         let totalEgresosPuros = 0;
 
-        // FAMILIAS COMERCIALES BASE (PESTAÑA 5)
+        // CONECTOR CROSS-REPO CON 'Seguimiento-cobranzas'
+        let cobranzasSyncRepo = JSON.parse(localStorage.getItem('cobranzas_enriquecidas_seguimiento')) || null;
+
+        function verificarSincronizacionCobranzas() {
+            let badgeSync = document.getElementById('badge-sync-repo');
+            let labelText = document.getElementById('label-sync-text');
+            if (cobranzasSyncRepo) {
+                if (labelText) labelText.innerText = "🔗 Sincronizado con 'Seguimiento-cobranzas' (" + Object.keys(cobranzasSyncRepo).length + " sem)";
+                if (badgeSync) badgeSync.classList.replace('border-purple-500/30', 'border-emerald-500/50');
+            } else {
+                if (labelText) labelText.innerText = "ℹ️ Sync Listo para 'Seguimiento-cobranzas'";
+            }
+        }
+
         let presupuestoComercialBase = [
             { familia: "Vacunos / Medias Reses", kilos: 250000, precio: 3800, diasCobro: 14, prioridad: "Volumen / Caja Intermedia" },
             { familia: "Cerdo", kilos: 80000, precio: 2900, diasCobro: 7, prioridad: "⚡ Caja Rápida" },
@@ -451,7 +470,6 @@
             }
         }
 
-        // LÓGICA Y RENDER DE LA PESTAÑA 5 (PRESUPUESTO COMERCIAL)
         function renderizarTablaComercial() {
             let tbody = document.getElementById('tabla-comercial-body');
             if (!tbody) return;
@@ -679,6 +697,7 @@
             }
         }
 
+        // RECALCULO DE CASHFLOW CON CASCADA O COBRANZAS DE REPO
         function recalcularCashflow() {
             let saldoInicialTotal = calcularSaldoInicial();
 
@@ -698,26 +717,36 @@
                 egrSimulados[s] = 0;
             });
 
-            semanasOrdenadas.forEach((sOrig, iOrig) => {
-                let montoOrig = baseIngresosSemanales[sOrig] || 0;
-
-                if (iOrig < semanasOrdenadas.length) {
-                    ingSimulados[semanasOrdenadas[iOrig]] += montoOrig * pct1;
-                }
-                if (iOrig + 1 < semanasOrdenadas.length) {
-                    ingSimulados[semanasOrdenadas[iOrig + 1]] += montoOrig * pct2;
-                }
-                if (iOrig + 2 < semanasOrdenadas.length) {
-                    ingSimulados[semanasOrdenadas[iOrig + 2]] += montoOrig * pct3;
-                }
-                if (iOrig + 3 < semanasOrdenadas.length) {
-                    let numRem = semanasOrdenadas.length - (iOrig + 3);
-                    let cuotaRem = (montoOrig * pctRemanente) / numRem;
-                    for (let j = iOrig + 3; j < semanasOrdenadas.length; j++) {
-                        ingSimulados[semanasOrdenadas[j]] += cuotaRem;
+            // Si existen cobranzas sincronizadas de 'Seguimiento-cobranzas', las toma con prioridad
+            if (cobranzasSyncRepo) {
+                semanasOrdenadas.forEach(s => {
+                    if (cobranzasSyncRepo[s] !== undefined) {
+                        ingSimulados[s] = parseMonto(cobranzasSyncRepo[s]);
                     }
-                }
-            });
+                });
+            } else {
+                // Si no, aplica el modelo de Cascada sobre el reporte de Finnegans
+                semanasOrdenadas.forEach((sOrig, iOrig) => {
+                    let montoOrig = baseIngresosSemanales[sOrig] || 0;
+
+                    if (iOrig < semanasOrdenadas.length) {
+                        ingSimulados[semanasOrdenadas[iOrig]] += montoOrig * pct1;
+                    }
+                    if (iOrig + 1 < semanasOrdenadas.length) {
+                        ingSimulados[semanasOrdenadas[iOrig + 1]] += montoOrig * pct2;
+                    }
+                    if (iOrig + 2 < semanasOrdenadas.length) {
+                        ingSimulados[semanasOrdenadas[iOrig + 2]] += montoOrig * pct3;
+                    }
+                    if (iOrig + 3 < semanasOrdenadas.length) {
+                        let numRem = semanasOrdenadas.length - (iOrig + 3);
+                        let cuotaRem = (montoOrig * pctRemanente) / numRem;
+                        for (let j = iOrig + 3; j < semanasOrdenadas.length; j++) {
+                            ingSimulados[semanasOrdenadas[j]] += cuotaRem;
+                        }
+                    }
+                });
+            }
 
             facturasDetalle.forEach(f => {
                 let sAjust = f.fechaAjustada;
@@ -908,6 +937,7 @@
         }
 
         window.onload = function() {
+            verificarSincronizacionCobranzas();
             calcularSaldoInicial();
             renderizarTablaComercial();
         };
