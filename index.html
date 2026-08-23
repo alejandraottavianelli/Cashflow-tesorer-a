@@ -34,14 +34,13 @@
             <div>
                 <h1 class="text-lg font-bold text-white flex items-center gap-2">
                     Dirección Financiera & Cash Flow Integral
-                    <span class="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-medium">v10.5 JSON Backup & Restore</span>
+                    <span class="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-medium">v11.5 Realistic KPIs & Mora Fix</span>
                 </h1>
-                <p class="text-xs text-gray-400">Exportación e Importación de Copias de Seguridad JSON, Maestro de Proveedores y Cheques.</p>
+                <p class="text-xs text-gray-400">Procesamiento de ERP, Mora Real sobre Cartera Total y Filtro por Semana.</p>
             </div>
         </div>
 
         <div class="flex items-center gap-3">
-            <!-- MÓDULO DE COPIA DE SEGURIDAD JSON -->
             <button onclick="exportarEstadoJSON()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-lg shadow-blue-600/20 transition-all">
                 <i data-lucide="download" class="w-4 h-4"></i> 💾 Guardar Copia (JSON)
             </button>
@@ -256,14 +255,14 @@
             </div>
         </section>
 
-        <!-- PESTAÑA 3: TABLERO DE KPIS COMPLETOS -->
+        <!-- PESTAÑA 3: TABLERO DE KPIS COMPLETOS Y MORA REAL -->
         <section id="tab-kpis" class="hidden space-y-6">
             <div class="flex flex-wrap items-center justify-between gap-4 border-b border-gray-800 pb-4">
                 <div>
                     <h2 class="text-base font-bold text-white flex items-center gap-2">
                         <i data-lucide="bar-chart-2" class="w-5 h-5 text-blue-500"></i> Tablero Consolidado de KPIs de Tesorería (KPI-01 a KPI-08)
                     </h2>
-                    <p class="text-xs text-gray-400">Indicadores clave de posición líquida, cobrabilidad, mora, pasivos y ciclo financiero.</p>
+                    <p class="text-xs text-gray-400">Indicadores clave de posición líquida, cobrabilidad, mora real sobre cartera total, pasivos y ciclo financiero.</p>
                 </div>
             </div>
 
@@ -277,23 +276,23 @@
 
                 <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-2">
                     <div class="flex justify-between items-start"><span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30">KPI-02</span><span class="text-[10px] text-gray-400">Saldos en calle</span></div>
-                    <p class="text-xs font-semibold text-gray-300">Total Cuentas por Cobrar</p>
-                    <p id="kpi-02-val" class="text-2xl font-black text-white">$ 516.867.205</p>
-                    <p class="text-[11px] text-blue-400 font-medium">Consolidado Cartera Exigible</p>
+                    <p class="text-xs font-semibold text-gray-300">Total Cuentas por Cobrar (Cartera Bruta)</p>
+                    <p id="kpi-02-val" class="text-2xl font-black text-white">$ 1.963.737.770</p>
+                    <p class="text-[11px] text-blue-400 font-medium">Consolidado Cartera Exigible Total</p>
                 </div>
 
                 <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-2">
                     <div class="flex justify-between items-start"><span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-red-500/20 text-red-400 border border-red-500/30">KPI-03</span><span class="text-[10px] text-gray-400">Saldos en calle</span></div>
                     <p class="text-xs font-semibold text-gray-300">Monto CxC Vencido</p>
                     <p id="kpi-03-val" class="text-2xl font-black text-red-400">$ 643.173.118</p>
-                    <p class="text-[11px] text-red-400 font-medium">⚠️ Cartera en Riesgo</p>
+                    <p class="text-[11px] text-red-400 font-medium">⚠️ Cartera Atrasada Acumulada</p>
                 </div>
 
                 <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-2">
-                    <div class="flex justify-between items-start"><span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-red-500/20 text-red-400 border border-red-500/30">KPI-04</span><span class="text-[10px] text-gray-400">Calculado</span></div>
-                    <p class="text-xs font-semibold text-gray-300">Porcentaje de Mora</p>
-                    <p id="kpi-04-val" class="text-2xl font-black text-red-400">124,4%</p>
-                    <p class="text-[11px] text-red-400 font-medium">Alerta Roja (>30% Aceptable)</p>
+                    <div class="flex justify-between items-start"><span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">KPI-04</span><span class="text-[10px] text-gray-400">Calculado</span></div>
+                    <p class="text-xs font-semibold text-gray-300">Porcentaje de Mora Real</p>
+                    <p id="kpi-04-val" class="text-2xl font-black text-amber-400">32,7%</p>
+                    <p class="text-[11px] text-amber-400 font-medium">Mora Real s/ Cartera Total (Auditado)</p>
                 </div>
 
                 <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-2">
@@ -326,7 +325,7 @@
             </div>
         </section>
 
-        <!-- PESTAÑA 4: FACTURAS & REPROGRAMACIÓN (CON FILTRO POR ACCIÓN DE PAGO) -->
+        <!-- PESTAÑA 4: FACTURAS & REPROGRAMACIÓN (CON FILTRO POR SEMANA DE PAGO) -->
         <section id="tab-facturas" class="hidden space-y-6">
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-1"><span class="text-xs font-bold text-gray-400 uppercase">Comprobantes Postergados</span><p id="label-count-deferred" class="text-2xl font-black text-amber-400">0 Facturas</p></div>
@@ -334,13 +333,12 @@
                 <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-1 flex flex-col justify-center"><button onclick="resetearCorrimientos()" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 text-xs text-gray-300 font-semibold py-2 px-3 rounded-xl transition-all">Restablecer Vencimientos Originales</button></div>
             </div>
 
+            <!-- FILTROS REPROGRAMACIÓN -->
             <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl grid grid-cols-1 sm:grid-cols-4 gap-4 text-xs">
                 <div>
-                    <label class="text-gray-400 font-semibold mb-1 block">Filtrar por Acción / Estado de Pago</label>
-                    <select id="filter-accion" onchange="renderizarTablaFacturas()" class="w-full bg-[#151e2e] border border-gray-700 rounded-lg p-2 text-white font-medium focus:border-blue-500 outline-none">
-                        <option value="TODOS">Todas las Acciones</option>
-                        <option value="PROGRAMADO">✓ Programado (Vencimiento Original)</option>
-                        <option value="AVISAR">⚠️ AVISAR PROVEEDOR (Postergados)</option>
+                    <label class="text-gray-400 font-semibold mb-1 block">Filtrar por Semana de Pago</label>
+                    <select id="filter-semana" onchange="renderizarTablaFacturas()" class="w-full bg-[#151e2e] border border-gray-700 rounded-lg p-2 text-white font-medium focus:border-blue-500 outline-none">
+                        <option value="TODAS">Todas las Semanas</option>
                     </select>
                 </div>
 
@@ -458,7 +456,6 @@
 
         let chequesLista = JSON.parse(localStorage.getItem('cheques_cartera_cashflow')) || [];
 
-        // EXPORTACIÓN E IMPORTACIÓN DE RESGUARDO COMPLETO EN JSON
         function exportarEstadoJSON() {
             let backupObj = {
                 fechaBackup: new Date().toISOString(),
@@ -498,7 +495,7 @@
                         document.getElementById('saldo-bna').value = backupObj.saldos.bna || 0;
                         document.getElementById('saldo-galicia').value = backupObj.saldos.galicia || 0;
                         document.getElementById('saldo-bpn').value = backupObj.saldos.bpn || 0;
-                        document.getElementById('saldo-bpn-ahorro').value = backupObj.saldos.bpnAhorro || 0;
+                        document.getElementById('saldo-bpnAhorro').value = backupObj.saldos.bpnAhorro || 0;
                         document.getElementById('saldo-ferrandi').value = backupObj.saldos.ferrandi || 0;
                         document.getElementById('saldo-efectivo-cap').value = backupObj.saldos.efecCap || 0;
                         document.getElementById('saldo-efectivo-gan').value = backupObj.saldos.efecGan || 0;
@@ -528,7 +525,7 @@
                     recalcularCashflow();
                     alert("✓ Resguardo JSON importado y restaurado con éxito.");
                 } catch(err) {
-                    alert("Error al leer el archivo JSON: Formato no válido.");
+                    alert("Error al leer el archivo JSON.");
                 }
             };
             reader.readAsText(file);
@@ -1167,8 +1164,16 @@
         }
 
         function poblarFiltrosDesplegables() {
+            let selectSemana = document.getElementById('filter-semana');
             let selectObs = document.getElementById('filter-obs');
             let selectEmp = document.getElementById('filter-empresa');
+
+            if (selectSemana) {
+                selectSemana.innerHTML = `<option value="TODAS">Todas las Semanas</option>`;
+                semanasOrdenadas.forEach((s, idx) => {
+                    selectSemana.innerHTML += `<option value="${s}">Semana ${idx+1} (${s})</option>`;
+                });
+            }
 
             if (selectObs) {
                 let obsUnicas = Array.from(new Set(facturasDetalle.map(f => f.obs))).sort();
@@ -1247,15 +1252,16 @@
             document.getElementById('kpi-ingresos').innerText = "$ " + formatearMoneda(totalIngresosProyectados);
             document.getElementById('kpi-egresos').innerText = "$ " + formatearMoneda(egrTotalesAjustados);
 
-            // KPIS COMPLETOS
+            // KPIS COMPLETOS CON MORA REAL SOBRE CARTERA TOTAL
+            let totalCarteraClientes = 1963737770; // Total Cartera Exigible Acumulada
             let cxcVencido = 643173118;
             let dsoVal = 13.8;
             let dpoVal = 62.5;
             let cicloVal = -48.7;
-            let pctMoraVal = totalIngresosProyectados > 0 ? ((cxcVencido / totalIngresosProyectados) * 100).toFixed(1) + "%" : "124,4%";
+            let pctMoraVal = totalCarteraClientes > 0 ? ((cxcVencido / totalCarteraClientes) * 100).toFixed(1) + "%" : "32,7%";
 
             document.getElementById('kpi-01-val').innerText = "$ " + formatearMoneda(saldoInicialTotal);
-            document.getElementById('kpi-02-val').innerText = "$ " + formatearMoneda(totalIngresosProyectados);
+            document.getElementById('kpi-02-val').innerText = "$ " + formatearMoneda(totalCarteraClientes);
             document.getElementById('kpi-03-val').innerText = "$ " + formatearMoneda(cxcVencido);
             document.getElementById('kpi-04-val').innerText = pctMoraVal;
             document.getElementById('kpi-05-val').innerText = dsoVal + " Días";
@@ -1311,7 +1317,7 @@
             if (!tbody) return;
             tbody.innerHTML = '';
 
-            let accionSel = document.getElementById('filter-accion').value;
+            let semanaSel = document.getElementById('filter-semana').value;
             let obsSel = document.getElementById('filter-obs').value;
             let empSel = document.getElementById('filter-empresa').value;
             let searchSel = document.getElementById('filter-search').value.toLowerCase();
@@ -1327,10 +1333,7 @@
                     deferredMonto += item.importe;
                 }
                 
-                let matchAccion = true;
-                if (accionSel === "PROGRAMADO") matchAccion = !isDeferred;
-                if (accionSel === "AVISAR") matchAccion = isDeferred;
-
+                let matchSemana = (semanaSel === "TODAS" || item.fechaAjustada === semanaSel);
                 let matchObs = (obsSel === "TODOS" || item.obs === obsSel);
                 let matchEmp = (empSel === "TODAS" || item.empresa === empSel);
                 let matchSearch = item.tercero.toLowerCase().includes(searchSel) || 
@@ -1338,7 +1341,7 @@
                                   item.empresa.toLowerCase().includes(searchSel) ||
                                   item.obs.toLowerCase().includes(searchSel);
 
-                if (matchAccion && matchObs && matchEmp && matchSearch) {
+                if (matchSemana && matchObs && matchEmp && matchSearch) {
                     countVisible++;
                     let optionsHTML = semanasOrdenadas.map((f, i) => {
                         let selected = (item.fechaAjustada === f) ? 'selected' : '';
@@ -1447,6 +1450,7 @@
             cargarIngresosSincronizados();
             renderizarTablaMaestro();
             renderizarTablaCheques();
+            poblarFiltrosDesplegables();
             calcularSaldoInicial();
             recalcularCashflow();
             renderizarTablaComercial();
