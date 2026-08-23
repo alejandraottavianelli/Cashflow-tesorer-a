@@ -34,15 +34,27 @@
             <div>
                 <h1 class="text-lg font-bold text-white flex items-center gap-2">
                     Dirección Financiera & Cash Flow Integral
-                    <span class="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-medium">v9.5 Direct Excel Check Parser</span>
+                    <span class="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-medium">v10.5 JSON Backup & Restore</span>
                 </h1>
-                <p class="text-xs text-gray-400">Procesamiento directo de Reportes de Cheques Propios, Terceros y Facturas de Finnegans ERP.</p>
+                <p class="text-xs text-gray-400">Exportación e Importación de Copias de Seguridad JSON, Maestro de Proveedores y Cheques.</p>
             </div>
         </div>
 
-        <div id="badge-sync-repo" class="bg-purple-500/10 border border-purple-500/30 px-3 py-1.5 rounded-xl flex items-center gap-2 text-xs text-purple-300 font-semibold">
-            <i data-lucide="link" class="w-4 h-4 text-purple-400"></i>
-            <span id="label-sync-text">🔗 Sincronizado con 'Seguimiento-cobranzas'</span>
+        <div class="flex items-center gap-3">
+            <!-- MÓDULO DE COPIA DE SEGURIDAD JSON -->
+            <button onclick="exportarEstadoJSON()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-lg shadow-blue-600/20 transition-all">
+                <i data-lucide="download" class="w-4 h-4"></i> 💾 Guardar Copia (JSON)
+            </button>
+            
+            <input type="file" id="json-restore-input" accept=".json" class="hidden" onchange="importarEstadoJSON(event)">
+            <button onclick="document.getElementById('json-restore-input').click()" class="bg-purple-600 hover:bg-purple-500 text-white px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-lg shadow-purple-600/20 transition-all">
+                <i data-lucide="upload" class="w-4 h-4"></i> 📂 Cargar Copia (JSON)
+            </button>
+
+            <div id="badge-sync-repo" class="bg-purple-500/10 border border-purple-500/30 px-3 py-1.5 rounded-xl flex items-center gap-2 text-xs text-purple-300 font-semibold">
+                <i data-lucide="link" class="w-4 h-4 text-purple-400"></i>
+                <span id="label-sync-text">🔗 Sincronizado con 'Seguimiento-cobranzas'</span>
+            </div>
         </div>
     </header>
 
@@ -50,7 +62,7 @@
     <nav class="bg-[#151e2e] border-b border-gray-800 px-6 py-2">
         <div class="flex items-center gap-2 text-xs text-gray-400 overflow-x-auto">
             <button onclick="cambiarPestana('tab-cargar')" id="btn-tab-cargar" class="tab-button tab-active px-4 py-2 rounded-lg flex items-center gap-2 transition-all">
-                <i data-lucide="upload-cloud" class="w-4 h-4"></i> 1. Cargar Archivos & Cheques
+                <i data-lucide="upload-cloud" class="w-4 h-4"></i> 1. Cargar Archivos & Maestro
             </button>
             <button onclick="cambiarPestana('tab-cashflow')" id="btn-tab-cashflow" class="tab-button px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-800 transition-all">
                 <i data-lucide="trending-up" class="w-4 h-4"></i> 2. Cash Flow Proyectado & Alertas
@@ -73,12 +85,11 @@
     <!-- CONTENIDO PRINCIPAL -->
     <main class="flex-1 p-6 space-y-6 max-w-[1600px] w-full mx-auto">
 
-        <!-- PESTAÑA 1: CARGAR ARCHIVOS & SALDOS -->
+        <!-- PESTAÑA 1: CARGAR ARCHIVOS, MAESTRO Y CHEQUES -->
         <section id="tab-cargar" class="space-y-6">
             <div class="bg-[#111827] border border-gray-800 rounded-2xl p-6 space-y-4">
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     
-                    <!-- BOTÓN 1: REPORTES GENERALES DE MOVIMIENTOS -->
                     <div class="border-2 border-dashed border-gray-700 hover:border-blue-500 bg-[#151e2e] rounded-xl p-4 text-center space-y-2 transition-all cursor-pointer">
                         <div class="w-9 h-9 bg-blue-500/10 text-blue-500 rounded-full flex items-center justify-center mx-auto">
                             <i data-lucide="file-up" class="w-5 h-5"></i>
@@ -91,7 +102,6 @@
                         <button onclick="document.getElementById('excel-input').click()" class="bg-blue-600 hover:bg-blue-500 text-white px-2.5 py-1.5 rounded-lg text-xs font-medium w-full">Subir General</button>
                     </div>
 
-                    <!-- BOTÓN 2: CHEQUES PROPIOS EXCEL -->
                     <div class="border-2 border-dashed border-gray-700 hover:border-red-500 bg-[#151e2e] rounded-xl p-4 text-center space-y-2 transition-all cursor-pointer">
                         <div class="w-9 h-9 bg-red-500/10 text-red-400 rounded-full flex items-center justify-center mx-auto">
                             <i data-lucide="arrow-up-right" class="w-5 h-5"></i>
@@ -104,7 +114,6 @@
                         <button onclick="document.getElementById('propios-input').click()" class="bg-red-600 hover:bg-red-500 text-white px-2.5 py-1.5 rounded-lg text-xs font-medium w-full">Subir Cheques Propios</button>
                     </div>
 
-                    <!-- BOTÓN 3: CHEQUES DE TERCEROS EXCEL -->
                     <div class="border-2 border-dashed border-gray-700 hover:border-emerald-500 bg-[#151e2e] rounded-xl p-4 text-center space-y-2 transition-all cursor-pointer">
                         <div class="w-9 h-9 bg-emerald-500/10 text-emerald-400 rounded-full flex items-center justify-center mx-auto">
                             <i data-lucide="arrow-down-left" class="w-5 h-5"></i>
@@ -117,7 +126,6 @@
                         <button onclick="document.getElementById('terceros-input').click()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-2.5 py-1.5 rounded-lg text-xs font-medium w-full">Subir Cheques Terceros</button>
                     </div>
 
-                    <!-- BOTÓN 4: MAESTRO PROVEEDORES & MANUAL -->
                     <div class="border-2 border-dashed border-gray-700 hover:border-purple-500 bg-[#151e2e] rounded-xl p-4 text-center space-y-2 transition-all">
                         <div class="w-9 h-9 bg-purple-500/10 text-purple-400 rounded-full flex items-center justify-center mx-auto">
                             <i data-lucide="book-open" class="w-5 h-5"></i>
@@ -134,6 +142,33 @@
                         </div>
                     </div>
 
+                </div>
+            </div>
+
+            <!-- BUSCADOR Y EDITOR INTERACTIVO DEL MAESTRO DE PROVEEDORES -->
+            <div class="bg-[#111827] border border-gray-800 rounded-2xl p-6 space-y-4">
+                <div class="flex flex-wrap items-center justify-between gap-4 border-b border-gray-800 pb-3">
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                        <i data-lucide="edit-3" class="w-4 h-4 text-purple-400"></i> Gestor & Editor del Maestro de Proveedores / Observaciones
+                    </h3>
+                    <div class="flex items-center gap-3">
+                        <input type="text" id="search-maestro" onkeyup="renderizarTablaMaestro()" placeholder="Buscar Proveedor o Categoría..." class="bg-[#151e2e] border border-gray-700 rounded-lg p-1.5 text-xs text-white placeholder-gray-500 outline-none w-64">
+                        <span id="label-count-maestro" class="text-xs font-semibold text-gray-400">0 Registros</span>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto max-h-60 overflow-y-auto">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead class="sticky top-0 bg-[#151e2e] text-gray-400 font-semibold z-10">
+                            <tr class="border-b border-gray-800">
+                                <th class="p-2.5">Proveedor / Tercero</th>
+                                <th class="p-2.5">Observación / Categoría Asignada</th>
+                                <th class="p-2.5 text-center">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-maestro-body" class="divide-y divide-gray-800 text-gray-300">
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
@@ -291,7 +326,7 @@
             </div>
         </section>
 
-        <!-- PESTAÑA 4: FACTURAS & REPROGRAMACIÓN -->
+        <!-- PESTAÑA 4: FACTURAS & REPROGRAMACIÓN (CON FILTRO POR ACCIÓN DE PAGO) -->
         <section id="tab-facturas" class="hidden space-y-6">
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-1"><span class="text-xs font-bold text-gray-400 uppercase">Comprobantes Postergados</span><p id="label-count-deferred" class="text-2xl font-black text-amber-400">0 Facturas</p></div>
@@ -299,10 +334,34 @@
                 <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-1 flex flex-col justify-center"><button onclick="resetearCorrimientos()" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 text-xs text-gray-300 font-semibold py-2 px-3 rounded-xl transition-all">Restablecer Vencimientos Originales</button></div>
             </div>
 
-            <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
-                <div><label class="text-gray-400 font-semibold mb-1 block">Filtrar por Observaciones</label><select id="filter-obs" onchange="renderizarTablaFacturas()" class="w-full bg-[#151e2e] border border-gray-700 rounded-lg p-2 text-white font-medium focus:border-blue-500 outline-none"><option value="TODOS">Todas las Observaciones</option></select></div>
-                <div><label class="text-gray-400 font-semibold mb-1 block">Filtrar por Empresa</label><select id="filter-empresa" onchange="renderizarTablaFacturas()" class="w-full bg-[#151e2e] border border-gray-700 rounded-lg p-2 text-white font-medium focus:border-blue-500 outline-none"><option value="TODAS">Todas las Empresas</option></select></div>
-                <div><label class="text-gray-400 font-semibold mb-1 block">Buscar Proveedor / Texto</label><input type="text" id="filter-search" onkeyup="renderizarTablaFacturas()" placeholder="Ej: Granja, El Taka, Guerrero..." class="w-full bg-[#151e2e] border border-gray-700 rounded-lg p-2 text-white outline-none"></div>
+            <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl grid grid-cols-1 sm:grid-cols-4 gap-4 text-xs">
+                <div>
+                    <label class="text-gray-400 font-semibold mb-1 block">Filtrar por Acción / Estado de Pago</label>
+                    <select id="filter-accion" onchange="renderizarTablaFacturas()" class="w-full bg-[#151e2e] border border-gray-700 rounded-lg p-2 text-white font-medium focus:border-blue-500 outline-none">
+                        <option value="TODOS">Todas las Acciones</option>
+                        <option value="PROGRAMADO">✓ Programado (Vencimiento Original)</option>
+                        <option value="AVISAR">⚠️ AVISAR PROVEEDOR (Postergados)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="text-gray-400 font-semibold mb-1 block">Filtrar por Observaciones</label>
+                    <select id="filter-obs" onchange="renderizarTablaFacturas()" class="w-full bg-[#151e2e] border border-gray-700 rounded-lg p-2 text-white font-medium focus:border-blue-500 outline-none">
+                        <option value="TODOS">Todas las Observaciones</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="text-gray-400 font-semibold mb-1 block">Filtrar por Empresa</label>
+                    <select id="filter-empresa" onchange="renderizarTablaFacturas()" class="w-full bg-[#151e2e] border border-gray-700 rounded-lg p-2 text-white font-medium focus:border-blue-500 outline-none">
+                        <option value="TODAS">Todas las Empresas</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="text-gray-400 font-semibold mb-1 block">Buscar Proveedor / Texto</label>
+                    <input type="text" id="filter-search" onkeyup="renderizarTablaFacturas()" placeholder="Ej: Granja, El Taka, Guerrero..." class="w-full bg-[#151e2e] border border-gray-700 rounded-lg p-2 text-white outline-none">
+                </div>
             </div>
 
             <div class="bg-[#111827] border border-gray-800 rounded-2xl overflow-hidden p-4 space-y-3">
@@ -385,7 +444,7 @@
 
     </main>
 
-    <!-- SCRIPTS CORE CON LECTOR NATIVO DE CHEQUES FINNEGANS EXCEL -->
+    <!-- SCRIPTS CORE -->
     <script>
         lucide.createIcons();
         let chartCashflow = null;
@@ -397,8 +456,83 @@
         let totalIngresosPuros = 0;
         let totalEgresosPuros = 0;
 
-        // LISTA DE CHEQUES EN MEMORIA PERSISTENTE (INCLUYE BASE Y SUBIDOS DESDE EXCEL)
         let chequesLista = JSON.parse(localStorage.getItem('cheques_cartera_cashflow')) || [];
+
+        // EXPORTACIÓN E IMPORTACIÓN DE RESGUARDO COMPLETO EN JSON
+        function exportarEstadoJSON() {
+            let backupObj = {
+                fechaBackup: new Date().toISOString(),
+                saldos: {
+                    bna: document.getElementById('saldo-bna').value,
+                    galicia: document.getElementById('saldo-galicia').value,
+                    bpn: document.getElementById('saldo-bpn').value,
+                    bpnAhorro: document.getElementById('saldo-bpn-ahorro').value,
+                    ferrandi: document.getElementById('saldo-ferrandi').value,
+                    efecCap: document.getElementById('saldo-efectivo-cap').value,
+                    efecGan: document.getElementById('saldo-efectivo-gan').value,
+                    mp: document.getElementById('saldo-mp').value
+                },
+                cheques: chequesLista,
+                maestro: maestroObservaciones,
+                facturasAjustadas: facturasDetalle.map(f => ({ id: f.id, fechaAjustada: f.fechaAjustada }))
+            };
+
+            let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupObj, null, 2));
+            let downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", "backup_cashflow_" + new Date().toISOString().split('T')[0] + ".json");
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        function importarEstadoJSON(event) {
+            let file = event.target.files[0];
+            if (!file) return;
+
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    let backupObj = JSON.parse(e.target.result);
+                    if (backupObj.saldos) {
+                        document.getElementById('saldo-bna').value = backupObj.saldos.bna || 0;
+                        document.getElementById('saldo-galicia').value = backupObj.saldos.galicia || 0;
+                        document.getElementById('saldo-bpn').value = backupObj.saldos.bpn || 0;
+                        document.getElementById('saldo-bpn-ahorro').value = backupObj.saldos.bpnAhorro || 0;
+                        document.getElementById('saldo-ferrandi').value = backupObj.saldos.ferrandi || 0;
+                        document.getElementById('saldo-efectivo-cap').value = backupObj.saldos.efecCap || 0;
+                        document.getElementById('saldo-efectivo-gan').value = backupObj.saldos.efecGan || 0;
+                        document.getElementById('saldo-mp').value = backupObj.saldos.mp || 0;
+                    }
+
+                    if (backupObj.cheques) {
+                        chequesLista = backupObj.cheques;
+                        localStorage.setItem('cheques_cartera_cashflow', JSON.stringify(chequesLista));
+                    }
+
+                    if (backupObj.maestro) {
+                        maestroObservaciones = backupObj.maestro;
+                        localStorage.setItem('maestro_proveedores_cashflow', JSON.stringify(maestroObservaciones));
+                    }
+
+                    if (backupObj.facturasAjustadas && facturasDetalle.length > 0) {
+                        backupObj.facturasAjustadas.forEach(adj => {
+                            let item = facturasDetalle.find(f => f.id === adj.id);
+                            if (item) item.fechaAjustada = adj.fechaAjustada;
+                        });
+                    }
+
+                    calcularSaldoInicial();
+                    renderizarTablaMaestro();
+                    renderizarTablaCheques();
+                    recalcularCashflow();
+                    alert("✓ Resguardo JSON importado y restaurado con éxito.");
+                } catch(err) {
+                    alert("Error al leer el archivo JSON: Formato no válido.");
+                }
+            };
+            reader.readAsText(file);
+        }
 
         function guardarChequesEnMemoria() {
             localStorage.setItem('cheques_cartera_cashflow', JSON.stringify(chequesLista));
@@ -418,7 +552,6 @@
             return matched;
         }
 
-        // LECTOR 1: EXCEL CHEQUES PROPIOS DE FINNEGANS
         function leerChequesPropiosExcel(event) {
             let file = event.target.files[0];
             if (!file) return;
@@ -435,10 +568,10 @@
                 let count = 0;
                 json.forEach((r, i) => {
                     let banco = String(getPropVal(r, ['Banco', 'banco']) || "Banco").trim();
-                    let num = String(getPropVal(r, ['Número', 'Número', 'Nro', 'numero']) || "CH-" + (i+1)).trim();
+                    let num = String(getPropVal(r, ['Número', 'Nro', 'numero']) || "CH-" + (i+1)).trim();
                     let tercero = String(getPropVal(r, ['Tercero', 'tercero', 'Proveedor']) || "Proveedor").trim();
                     let fVtoRaw = getPropVal(r, ['Fecha de vto.', 'Fecha de vto', 'Fecha Vencimiento', 'Fecha']);
-                    let montoRaw = getPropVal(r, ['Imp. moneda trans.', 'Imp. Moneda Trans.', 'Importe', 'Monto']);
+                    let montoRaw = getPropVal(r, ['Imp. moneda trans.', 'Importe', 'Monto']);
                     
                     let monto = parseMonto(montoRaw);
                     let strFecha = "";
@@ -452,7 +585,7 @@
                             banco: banco,
                             ref: num,
                             tercero: tercero,
-                            fechaVto: strFecha || "2026-08-20",
+                            fechaVto: strFecha || semanasOrdenadas[0],
                             semana: mapDateToWeek(strFecha),
                             monto: monto
                         });
@@ -463,12 +596,11 @@
                 guardarChequesEnMemoria();
                 document.getElementById('label-estado-propios').innerText = "✓ " + count + " Cheques Propios leídos";
                 document.getElementById('label-estado-propios').classList.add("text-emerald-400");
-                alert("✓ " + count + " Cheques Propios leídos desde Excel e incorporados como Egresos.");
+                alert("✓ " + count + " Cheques Propios leídos desde Excel e incorporados a Egresos.");
             };
             reader.readAsArrayBuffer(file);
         }
 
-        // LECTOR 2: EXCEL CHEQUES DE TERCEROS DE FINNEGANS
         function leerChequesTercerosExcel(event) {
             let file = event.target.files[0];
             if (!file) return;
@@ -488,7 +620,7 @@
                     let num = String(getPropVal(r, ['Número', 'Nro ch. eletr.', 'numero']) || "CH-T-" + (i+1)).trim();
                     let tercero = String(getPropVal(r, ['Tercero', 'tercero', 'Cliente']) || "Cliente").trim();
                     let fVtoRaw = getPropVal(r, ['Fecha de vto.', 'Fecha de vto', 'Fecha Vencimiento', 'Fecha']);
-                    let montoRaw = getPropVal(r, ['Imp. moneda trans.', 'Imp. Moneda Trans.', 'Importe', 'Monto']);
+                    let montoRaw = getPropVal(r, ['Imp. moneda trans.', 'Importe', 'Monto']);
                     
                     let monto = parseMonto(montoRaw);
                     let strFecha = "";
@@ -502,7 +634,7 @@
                             banco: banco,
                             ref: num,
                             tercero: tercero,
-                            fechaVto: strFecha || "2026-08-20",
+                            fechaVto: strFecha || semanasOrdenadas[0],
                             semana: mapDateToWeek(strFecha),
                             monto: monto
                         });
@@ -513,7 +645,7 @@
                 guardarChequesEnMemoria();
                 document.getElementById('label-estado-terceros').innerText = "✓ " + count + " Cheques Terceros leídos";
                 document.getElementById('label-estado-terceros').classList.add("text-emerald-400");
-                alert("✓ " + count + " Cheques de Terceros leídos desde Excel e incorporados como Ingresos.");
+                alert("✓ " + count + " Cheques de Terceros leídos desde Excel e incorporados a Ingresos.");
             };
             reader.readAsArrayBuffer(file);
         }
@@ -523,17 +655,17 @@
             if (!tipo) return;
             tipo = tipo.trim().toUpperCase();
             if (tipo !== "TERCEROS" && tipo !== "PROPIO") {
-                alert("Tipo no válido. Debe ser 'TERCEROS' o 'PROPIO'.");
+                alert("Tipo no válido.");
                 return;
             }
 
-            let banco = prompt("Ingrese el Banco:", "Banco Galicia");
+            let banco = prompt("Ingrese Banco:", "Banco Galicia");
             if (!banco) return;
 
             let ref = prompt("Ingrese N° de Cheque / Ref:", "CH-" + Math.floor(100000 + Math.random() * 900000));
             if (!ref) return;
 
-            let fVto = prompt("Ingrese fecha de vencimiento (AAAA-MM-DD):", "2026-08-21");
+            let fVto = prompt("Ingrese fecha de vencimiento (AAAA-MM-DD):", semanasOrdenadas[0]);
             if (!fVto) return;
 
             let montoStr = prompt("Ingrese el Importe en Pesos ($):", "5000000");
@@ -575,7 +707,7 @@
             if (!tbody) return;
             tbody.innerHTML = '';
 
-            if (lblCount) lblCount.innerText = chequesLista.length + " Cheques guardados en memoria";
+            if (lblCount) lblCount.innerText = chequesLista.length + " Cheques procesados en memoria";
 
             chequesLista.forEach(c => {
                 let isTercero = (c.tipo === "TERCEROS");
@@ -655,6 +787,10 @@
 
         function guardarMaestroEnMemoria() {
             localStorage.setItem('maestro_proveedores_cashflow', JSON.stringify(maestroObservaciones));
+            renderizarTablaMaestro();
+            if (facturasDetalle.length > 0) {
+                reaplicarMaestroAFacturas();
+            }
         }
 
         function abrirModalProveedorNuevo() {
@@ -665,17 +801,67 @@
 
             maestroObservaciones[prov.trim()] = obs.trim();
             guardarMaestroEnMemoria();
-            alert("✓ Proveedor " + prov + " registrado con categoría '" + obs + "'. Guardado en la memoria activa del navegador.");
-            
-            if (facturasDetalle.length > 0) {
-                facturasDetalle.forEach(f => {
-                    let kComb = f.tercero + " | " + f.empresa;
-                    if (maestroObservaciones[kComb]) f.obs = maestroObservaciones[kComb];
-                    else if (maestroObservaciones[f.tercero]) f.obs = maestroObservaciones[f.tercero];
-                });
-                poblarFiltrosDesplegables();
-                renderizarTablaFacturas();
+            alert("✓ Proveedor " + prov + " registrado con categoría '" + obs + "'. Guardado en memoria.");
+        }
+
+        function editarReglaMaestro(key) {
+            let obsActual = maestroObservaciones[key];
+            let nuevaObs = prompt("Modificar Observación / Categoría para: " + key, obsActual);
+            if (nuevaObs !== null && nuevaObs.trim() !== "") {
+                maestroObservaciones[key] = nuevaObs.trim();
+                guardarMaestroEnMemoria();
             }
+        }
+
+        function eliminarReglaMaestro(key) {
+            if (confirm("¿Desea eliminar la regla para " + key + "?")) {
+                delete maestroObservaciones[key];
+                guardarMaestroEnMemoria();
+            }
+        }
+
+        function renderizarTablaMaestro() {
+            let tbody = document.getElementById('tabla-maestro-body');
+            let lblCount = document.getElementById('label-count-maestro');
+            let filterText = (document.getElementById('search-maestro') ? document.getElementById('search-maestro').value : "").toLowerCase();
+
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            let keys = Object.keys(maestroObservaciones).sort();
+            let countVisible = 0;
+
+            keys.forEach(k => {
+                let obsVal = maestroObservaciones[k];
+                if (k.toLowerCase().includes(filterText) || obsVal.toLowerCase().includes(filterText)) {
+                    countVisible++;
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-[#151e2e] transition-all">
+                            <td class="p-2.5 font-semibold text-white">${k}</td>
+                            <td class="p-2.5 text-purple-400 font-semibold">🏷️ ${obsVal}</td>
+                            <td class="p-2.5 text-center flex gap-1 justify-center">
+                                <button onclick="editarReglaMaestro('${k}')" class="text-blue-400 hover:text-blue-300 font-semibold px-2 py-0.5 rounded bg-blue-500/10 border border-blue-500/20">✏️ Editar</button>
+                                <button onclick="eliminarReglaMaestro('${k}')" class="text-red-400 hover:text-red-300 font-semibold px-2 py-0.5 rounded bg-red-500/10 border border-red-500/20">🗑️</button>
+                            </td>
+                        </tr>
+                    `;
+                }
+            });
+
+            if (lblCount) lblCount.innerText = countVisible + " Registros";
+        }
+
+        function reaplicarMaestroAFacturas() {
+            facturasDetalle.forEach(f => {
+                let keyCombo = f.tercero + " | " + f.empresa;
+                if (maestroObservaciones[keyCombo]) {
+                    f.obs = maestroObservaciones[keyCombo];
+                } else if (maestroObservaciones[f.tercero]) {
+                    f.obs = maestroObservaciones[f.tercero];
+                }
+            });
+            poblarFiltrosDesplegables();
+            renderizarTablaFacturas();
         }
 
         function getPropVal(row, keyNames) {
@@ -861,12 +1047,7 @@
                 guardarMaestroEnMemoria();
                 document.getElementById('label-estado-maestro').innerText = "✓ Maestro Guardado en Memoria (" + count + " reg).";
                 document.getElementById('label-estado-maestro').classList.add("text-purple-400");
-                alert("✓ Maestro cargado y guardado en la memoria permanente del navegador.");
-                
-                if (facturasDetalle.length > 0) {
-                    poblarFiltrosDesplegables();
-                    renderizarTablaFacturas();
-                }
+                alert("✓ Maestro cargado y guardado en memoria.");
             };
             reader.readAsArrayBuffer(file);
         }
@@ -1006,7 +1187,7 @@
             }
         }
 
-        // RECALCULO DE CASHFLOW CON COBRANZAS + FACTURAS + CHEQUES PROPIOS / TERCEROS
+        // RECALCULO DE CASHFLOW CON CONSOLIDACIÓN DE CHEQUES EN CARTERA A LA FECHA EN SEMANA 1
         function recalcularCashflow() {
             let saldoInicialTotal = calcularSaldoInicial();
 
@@ -1018,7 +1199,7 @@
                 egrSimulados[s] = 0;
             });
 
-            // 1. Cobranzas sincronizadas de 'Seguimiento-cobranzas'
+            // 1. Cobranzas sincronizadas
             if (cobranzasSyncObj) {
                 semanasOrdenadas.forEach((sem, idx) => {
                     if (idx === 0) ingSimulados[sem] = cobranzasSyncObj.sem1 || cobranzasSyncObj["2026-08-16"] || 436529284;
@@ -1036,7 +1217,7 @@
                 egrSimulados[sAjust] += f.importe;
             });
 
-            // 3. Impacto de Cheques: Terceros SUMA a Ingresos, Propios SUMA a Egresos
+            // 3. Impacto de CHEQUES: Terceros Vencidos o A la Fecha se consolidan en Semana 1
             chequesLista.forEach(ch => {
                 let semTarget = ch.semana || mapDateToWeek(ch.fechaVto);
                 if (ch.tipo === "TERCEROS") {
@@ -1130,6 +1311,7 @@
             if (!tbody) return;
             tbody.innerHTML = '';
 
+            let accionSel = document.getElementById('filter-accion').value;
             let obsSel = document.getElementById('filter-obs').value;
             let empSel = document.getElementById('filter-empresa').value;
             let searchSel = document.getElementById('filter-search').value.toLowerCase();
@@ -1145,6 +1327,10 @@
                     deferredMonto += item.importe;
                 }
                 
+                let matchAccion = true;
+                if (accionSel === "PROGRAMADO") matchAccion = !isDeferred;
+                if (accionSel === "AVISAR") matchAccion = isDeferred;
+
                 let matchObs = (obsSel === "TODOS" || item.obs === obsSel);
                 let matchEmp = (empSel === "TODAS" || item.empresa === empSel);
                 let matchSearch = item.tercero.toLowerCase().includes(searchSel) || 
@@ -1152,7 +1338,7 @@
                                   item.empresa.toLowerCase().includes(searchSel) ||
                                   item.obs.toLowerCase().includes(searchSel);
 
-                if (matchObs && matchEmp && matchSearch) {
+                if (matchAccion && matchObs && matchEmp && matchSearch) {
                     countVisible++;
                     let optionsHTML = semanasOrdenadas.map((f, i) => {
                         let selected = (item.fechaAjustada === f) ? 'selected' : '';
@@ -1259,6 +1445,7 @@
 
         window.onload = function() {
             cargarIngresosSincronizados();
+            renderizarTablaMaestro();
             renderizarTablaCheques();
             calcularSaldoInicial();
             recalcularCashflow();
