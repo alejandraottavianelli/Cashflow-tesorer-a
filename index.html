@@ -34,9 +34,9 @@
             <div>
                 <h1 class="text-lg font-bold text-white flex items-center gap-2">
                     Dirección Financiera & Cash Flow Integral
-                    <span class="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-medium">v11.5 Realistic KPIs & Mora Fix</span>
+                    <span class="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-medium">v12.0 Dynamic Sync KPIs</span>
                 </h1>
-                <p class="text-xs text-gray-400">Procesamiento de ERP, Mora Real sobre Cartera Total y Filtro por Semana.</p>
+                <p class="text-xs text-gray-400">KPIs de Mora y Cartera Viva Sincronizados Dinámicamente con 'Seguimiento-cobranzas'.</p>
             </div>
         </div>
 
@@ -255,14 +255,14 @@
             </div>
         </section>
 
-        <!-- PESTAÑA 3: TABLERO DE KPIS COMPLETOS Y MORA REAL -->
+        <!-- PESTAÑA 3: TABLERO DE KPIS DINÁMICOS DESDE SEGUIMIENTO-COBRANZAS -->
         <section id="tab-kpis" class="hidden space-y-6">
             <div class="flex flex-wrap items-center justify-between gap-4 border-b border-gray-800 pb-4">
                 <div>
                     <h2 class="text-base font-bold text-white flex items-center gap-2">
                         <i data-lucide="bar-chart-2" class="w-5 h-5 text-blue-500"></i> Tablero Consolidado de KPIs de Tesorería (KPI-01 a KPI-08)
                     </h2>
-                    <p class="text-xs text-gray-400">Indicadores clave de posición líquida, cobrabilidad, mora real sobre cartera total, pasivos y ciclo financiero.</p>
+                    <p class="text-xs text-gray-400">Sincronización en tiempo real de Deuda Viva en la Calle, Cartera Vencida y Porcentaje de Mora.</p>
                 </div>
             </div>
 
@@ -275,24 +275,24 @@
                 </div>
 
                 <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-2">
-                    <div class="flex justify-between items-start"><span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30">KPI-02</span><span class="text-[10px] text-gray-400">Saldos en calle</span></div>
-                    <p class="text-xs font-semibold text-gray-300">Total Cuentas por Cobrar (Cartera Bruta)</p>
-                    <p id="kpi-02-val" class="text-2xl font-black text-white">$ 1.963.737.770</p>
-                    <p class="text-[11px] text-blue-400 font-medium">Consolidado Cartera Exigible Total</p>
+                    <div class="flex justify-between items-start"><span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30">KPI-02</span><span class="text-[10px] text-purple-400 font-bold">🔗 Sync Cobranzas</span></div>
+                    <p class="text-xs font-semibold text-gray-300">Deuda Viva en la Calle (Total CxC)</p>
+                    <p id="kpi-02-val" class="text-2xl font-black text-white">$ 1.132.605.909</p>
+                    <p class="text-[11px] text-blue-400 font-medium">Consolidado Cartera Exigible ERP</p>
                 </div>
 
                 <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-2">
-                    <div class="flex justify-between items-start"><span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-red-500/20 text-red-400 border border-red-500/30">KPI-03</span><span class="text-[10px] text-gray-400">Saldos en calle</span></div>
-                    <p class="text-xs font-semibold text-gray-300">Monto CxC Vencido</p>
-                    <p id="kpi-03-val" class="text-2xl font-black text-red-400">$ 643.173.118</p>
-                    <p class="text-[11px] text-red-400 font-medium">⚠️ Cartera Atrasada Acumulada</p>
+                    <div class="flex justify-between items-start"><span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-red-500/20 text-red-400 border border-red-500/30">KPI-03</span><span class="text-[10px] text-purple-400 font-bold">🔗 Sync Cobranzas</span></div>
+                    <p class="text-xs font-semibold text-gray-300">Monto CxC Vencido Real</p>
+                    <p id="kpi-03-val" class="text-2xl font-black text-red-400">$ 739.808.788</p>
+                    <p class="text-[11px] text-red-400 font-medium">⚠️ Cartera Vencida del ERP</p>
                 </div>
 
                 <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-2">
-                    <div class="flex justify-between items-start"><span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">KPI-04</span><span class="text-[10px] text-gray-400">Calculado</span></div>
+                    <div class="flex justify-between items-start"><span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">KPI-04</span><span class="text-[10px] text-gray-400">Calculado Dinámico</span></div>
                     <p class="text-xs font-semibold text-gray-300">Porcentaje de Mora Real</p>
-                    <p id="kpi-04-val" class="text-2xl font-black text-amber-400">32,7%</p>
-                    <p class="text-[11px] text-amber-400 font-medium">Mora Real s/ Cartera Total (Auditado)</p>
+                    <p id="kpi-04-val" class="text-2xl font-black text-amber-400">65,3%</p>
+                    <p class="text-[11px] text-amber-400 font-medium">Ratio Auditado (KPI-03 / KPI-02)</p>
                 </div>
 
                 <div class="bg-[#111827] border border-gray-800 p-4 rounded-2xl space-y-2">
@@ -442,7 +442,7 @@
 
     </main>
 
-    <!-- SCRIPTS CORE -->
+    <!-- SCRIPTS CORE CON LECTURA DE KPIS DESDE SEGUIMIENTO-COBRANZAS -->
     <script>
         lucide.createIcons();
         let chartCashflow = null;
@@ -455,6 +455,10 @@
         let totalEgresosPuros = 0;
 
         let chequesLista = JSON.parse(localStorage.getItem('cheques_cartera_cashflow')) || [];
+
+        // VARIABLES DE CARTERA VIVA Y VENCIDO DINÁMICOS DESDE SEGUIMIENTO-COBRANZAS
+        let syncCxcTotalViva = 1132605909.00;
+        let syncCxcVencidoReal = 739808787.69;
 
         function exportarEstadoJSON() {
             let backupObj = {
@@ -738,6 +742,12 @@
             let rawSync = localStorage.getItem('cobranzas_enriquecidas_seguimiento') || 
                           localStorage.getItem('seguimiento_cobranzas_forecast') || 
                           localStorage.getItem('pronostico_cobranzas_cashflow');
+
+            let rawViva = localStorage.getItem('cxc_deuda_viva_total') || localStorage.getItem('cxc_total_viva');
+            let rawVencido = localStorage.getItem('cxc_vencido_real') || localStorage.getItem('cxc_monto_vencido');
+
+            if (rawViva) syncCxcTotalViva = parseMonto(rawViva);
+            if (rawVencido) syncCxcVencidoReal = parseMonto(rawVencido);
 
             if (rawSync) {
                 try {
@@ -1192,7 +1202,7 @@
             }
         }
 
-        // RECALCULO DE CASHFLOW CON CONSOLIDACIÓN DE CHEQUES EN CARTERA A LA FECHA EN SEMANA 1
+        // RECALCULO DE CASHFLOW Y CÁLCULO DE KPIS DINÁMICOS
         function recalcularCashflow() {
             let saldoInicialTotal = calcularSaldoInicial();
 
@@ -1252,17 +1262,15 @@
             document.getElementById('kpi-ingresos').innerText = "$ " + formatearMoneda(totalIngresosProyectados);
             document.getElementById('kpi-egresos').innerText = "$ " + formatearMoneda(egrTotalesAjustados);
 
-            // KPIS COMPLETOS CON MORA REAL SOBRE CARTERA TOTAL
-            let totalCarteraClientes = 1963737770; // Total Cartera Exigible Acumulada
-            let cxcVencido = 643173118;
+            // KPIS COMPLETOS CON VALORES DINÁMICOS SINCRONIZADOS DE CARTERA VIVA Y VENCIDO
             let dsoVal = 13.8;
             let dpoVal = 62.5;
             let cicloVal = -48.7;
-            let pctMoraVal = totalCarteraClientes > 0 ? ((cxcVencido / totalCarteraClientes) * 100).toFixed(1) + "%" : "32,7%";
+            let pctMoraVal = syncCxcTotalViva > 0 ? ((syncCxcVencidoReal / syncCxcTotalViva) * 100).toFixed(1) + "%" : "65.3%";
 
             document.getElementById('kpi-01-val').innerText = "$ " + formatearMoneda(saldoInicialTotal);
-            document.getElementById('kpi-02-val').innerText = "$ " + formatearMoneda(totalCarteraClientes);
-            document.getElementById('kpi-03-val').innerText = "$ " + formatearMoneda(cxcVencido);
+            document.getElementById('kpi-02-val').innerText = "$ " + formatearMoneda(syncCxcTotalViva);
+            document.getElementById('kpi-03-val').innerText = "$ " + formatearMoneda(syncCxcVencidoReal);
             document.getElementById('kpi-04-val').innerText = pctMoraVal;
             document.getElementById('kpi-05-val').innerText = dsoVal + " Días";
             document.getElementById('kpi-06-val').innerText = "$ " + formatearMoneda(egrTotalesAjustados);
